@@ -18,50 +18,49 @@
 ;
 BOARD            .EQU  $0140
 BKSQ             .EQU  $0185
-BoardOut         .EQU  $11ee
+BoardOut         .EQU  $145d
 CASTLES          .EQU  $0182
-CaptPiece        .EQU  $0e8f
-CastlMove        .EQU  $0e91
-DEBUGs           .EQU  $1b67
-DEC_I            .EQU  $1b82
+CaptPiece        .EQU  $10f7
+CastlMove        .EQU  $10f9
+DEBUGs           .EQU  $1e48
+DEC_I            .EQU  $1eda
 ENPSQ            .EQU  $0183
-GenMovesAndString .EQU  $080c
-GenMoves         .EQU  $0890
-GetFEN           .EQU  $10ed
-IsEmpty          .EQU  $0e3b
-IsOccupied       .EQU  $0e46
-IsWhite          .EQU  $0e51
-IsBlack          .EQU  $0e70
-IsCheck          .EQU  $12b3
-LD_Ix            .EQU  $1b79
-MOVE_CNT         .EQU  $040b
-MOVE_HIST        .EQU  $040c
-MOVE_byString    .EQU  $0813
-MbyStrMove       .EQU  $0830
-MovesToStr       .EQU  $0f3f
-MovesOut         .EQU  $1020
-MakeMove         .EQU  $1698
-MOVE_str         .EQU  $35e6
+GenMovesAndString .EQU  $0a74
+GenMoves         .EQU  $0af8
+GetFEN           .EQU  $135c
+IsEmpty          .EQU  $10a3
+IsOccupied       .EQU  $10ae
+IsWhite          .EQU  $10b9
+IsBlack          .EQU  $10d8
+IsCheck          .EQU  $1522
+LD_Ix            .EQU  $1ed1
+MOVE_CNT         .EQU  $0673
+MOVE_HIST        .EQU  $0674
+MOVE_byString    .EQU  $0a7b
+MbyStrMove       .EQU  $0a98
+MovesToStr       .EQU  $11ae
+MovesOut         .EQU  $128f
+MakeMove         .EQU  $1907
+MOVE_str         .EQU  $393e
 NEXT_MVSTR       .EQU  $0186
-NEXT_MVCNT       .EQU  $02f2
-NEXT_MOVES       .EQU  $02f3
-PromoPcId        .EQU  $0e90
+NEXT_MVCNT       .EQU  $0492
+NEXT_MOVES       .EQU  $0493
+PromoPcId        .EQU  $10f8
 SIDE             .EQU  $0181
-SQi              .EQU  $088d
-SQt              .EQU  $088e
-SetFEN           .EQU  $1029
-ScanSqC          .EQU  $126f
-SetSqScan        .EQU  $1270
-ScanSqNxt        .EQU  $1279
-Swap_Sides       .EQU  $17fb
-UndoAllMoves     .EQU  $087e
-UnMakeMove       .EQU  $198a
+SQi              .EQU  $0af5
+SQt              .EQU  $0af6
+SetFEN           .EQU  $1298
+ScanSqC          .EQU  $14de
+SetSqScan        .EQU  $14df
+ScanSqNxt        .EQU  $14e8
+Swap_Sides       .EQU  $1a6a
+UndoAllMoves     .EQU  $0ae6
+UnMakeMove       .EQU  $1cde
 WKSQ             .EQU  $0184
-printBOARD       .EQU  $1240
+printBOARD       .EQU  $14af
 startFEN         .EQU  $0107
-                                
-
-           
+                            
+                                    
 start_PG_Module:
 
 ; File selection starts here
@@ -2264,9 +2263,6 @@ DspWtOutp:
 DspWtEx:
          pop de
          ret
-
-;INCLUDES                  
-        ;#include "ChessU2.ASM"     ; USER interface and grahics
                    
 end_PG_Module:          
 .end          

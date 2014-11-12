@@ -10,6 +10,7 @@
 ;  Then run ChessY2K.com on MSX-DOS1
 ;
 ; Date: sep.,oct. 2012
+;  updated nov.2014
 ;
 ;Performance testing: 256 movement generations per minute on MSX machine -
 ;                        not enaugh for chess but ok for pgn-viewer project.
@@ -65,7 +66,15 @@ NEXT_MVSTR: .byte "                                                    "
             .byte "                                                    "                      
             .byte "                                                    "
             .byte "                                                    "
-
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "                      
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            
 NEXT_MVCNT: .byte 0      ;count, values, and string to output          
 NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -74,7 +83,12 @@ NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
+            .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            
 ; list of moves from the root
 ; bytes:
 ;  square from,
@@ -85,6 +99,7 @@ NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 MOVE_CNT   .byte 0   ; count of moves (below 127 chess both-side-moves) 
 
 MOVE_HIST  .ds 4*2*128; 2Kb for history of chess moves 
+
 
 ; We use own memory of .COM file till now
 ;  without damaging MSX resources with malloc-style
@@ -1369,6 +1384,9 @@ addMVnoprom:
          set 4,b                ; bit 4 - castling indicator
 addMVnoCastle:
 
+         ld a, (CaptPiece)
+         cp 0
+         jr z,addMVnoEP
          ld a, (ENPSQ)
          cp $ff
          jr z,addMVnoEP 
@@ -3095,6 +3113,8 @@ MKMloop1:
          ld a,(hl)
          cp ' '
          jr z,MKMblankL1
+         cp 0
+         jr z,MKMblankL1
          inc hl
          jr MKMloop1
 MKMblankL1:
@@ -3215,7 +3235,11 @@ MMEnp1:  call MM_hl
 ;   +also uses flags from history
 
              ; we keep list of captured pieces to unmake later as stack
-UnMakeList:    .byte "                                      ", 0     ;32+6 pieces
+UnMakeList:
+         .byte "                                                                  "
+         .byte "                                                                  "
+         .byte "                                                                  "
+         .byte "                                                                  "
 flag_ix:       .byte 0      ; temporary flag of move made
         
 UnMakeMove:
@@ -3364,6 +3388,8 @@ UnMKloop1:
          ld a,(de)
          cp ' '
          jr z,UnMKblankL1
+         cp 0
+         jr z,UnMKblankL1
          inc de
          jr UnMKloop1
 UnMKblankL1:
@@ -3465,8 +3491,24 @@ UnMKEnp1:
          pop hl
          ret
                  
-;END         
+;END
+      
+;BEGIN of ========== DEBUG tool
 
+; Put call DEBUGs in ASM to see that I got here
+         
+debugstr: .byte "DEBUG!$", 0  ; outputs this when reaches
+
+DEBUGs:
+
+         push de
+         ld de, debugstr
+         call PrintString
+         pop de
+         ret            
+
+        .byte "DEBUGZ",0    ; put in code to find via debugger
+;END
 
 ;BEGIN of ========== KING CHECKMATE DETECTION
 ;;
@@ -3546,23 +3588,6 @@ CKMEnd:
 
 
 
-
-;BEGIN of ========== DEBUG tool
-
-; Put call DEBUGs in ASM to see that I got here
-         
-debugstr: .byte "DEBUG!$", 0  ; outputs this when reaches
-
-DEBUGs:
-
-         push de
-         ld de, debugstr
-         call PrintString
-         pop de
-         ret            
-
-        .byte "DEBUGZ",0    ; put in code to find via debugger
-;END
                    
 ;BEGIN of ========== COUNTER for large loop of 65536 maximum value
 ;
@@ -3599,7 +3624,8 @@ IsNo0_I: scf
 Is0ret:  pop bc
          ret
 ;END
-       
+
+      
 ;        
 ; INCLUDES        
 ;        
@@ -3613,9 +3639,6 @@ Is0ret:  pop bc
 
 JMP_0000: .equ $F3EF         ;good exit to DOS prompt for sure
 
-; Exporting addresses to include them in other modules 
-;      (recognises as labels)
-
 ; Container for UCI-string-of-moves in form "e2e4 e7e5 ... e1g1 ... b7b8q ... "
 ; (set before MOVE_byString usage)
 MOVE_str: .byte "                                                                "          
@@ -3624,6 +3647,9 @@ MOVE_str: .byte "                                                               
           .byte "                                                                "
           .ds $700
           ;2Kb of moves 
+                    
+; Exporting addresses to include them in other modules 
+;      (recognises as labels)
           
          .export startFEN
          .export MOVE_str
