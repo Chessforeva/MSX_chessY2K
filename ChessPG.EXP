@@ -18,46 +18,46 @@
 0018   8000             ;
 0019   8000             BOARD            .EQU  $0140
 0020   8000             BKSQ             .EQU  $0185
-0021   8000             BoardOut         .EQU  $145d
+0021   8000             BoardOut         .EQU  $1c9d
 0022   8000             CASTLES          .EQU  $0182
-0023   8000             CaptPiece        .EQU  $10f7
-0024   8000             CastlMove        .EQU  $10f9
-0025   8000             DEBUGs           .EQU  $1e48
-0026   8000             DEC_I            .EQU  $1eda
+0023   8000             CaptPiece        .EQU  $1937
+0024   8000             CastlMove        .EQU  $1939
+0025   8000             DEBUGs           .EQU  $2688
+0026   8000             DEC_I            .EQU  $271a
 0027   8000             ENPSQ            .EQU  $0183
-0028   8000             GenMovesAndString .EQU  $0a74
-0029   8000             GenMoves         .EQU  $0af8
-0030   8000             GetFEN           .EQU  $135c
-0031   8000             IsEmpty          .EQU  $10a3
-0032   8000             IsOccupied       .EQU  $10ae
-0033   8000             IsWhite          .EQU  $10b9
-0034   8000             IsBlack          .EQU  $10d8
-0035   8000             IsCheck          .EQU  $1522
-0036   8000             LD_Ix            .EQU  $1ed1
-0037   8000             MOVE_CNT         .EQU  $0673
-0038   8000             MOVE_HIST        .EQU  $0674
-0039   8000             MOVE_byString    .EQU  $0a7b
-0040   8000             MbyStrMove       .EQU  $0a98
-0041   8000             MovesToStr       .EQU  $11ae
-0042   8000             MovesOut         .EQU  $128f
-0043   8000             MakeMove         .EQU  $1907
-0044   8000             MOVE_str         .EQU  $393e
+0028   8000             GenMovesAndString .EQU  $12b4
+0029   8000             GenMoves         .EQU  $1338
+0030   8000             GetFEN           .EQU  $1b9c
+0031   8000             IsEmpty          .EQU  $18e3
+0032   8000             IsOccupied       .EQU  $18ee
+0033   8000             IsWhite          .EQU  $18f9
+0034   8000             IsBlack          .EQU  $1918
+0035   8000             IsCheck          .EQU  $1d62
+0036   8000             LD_Ix            .EQU  $2711
+0037   8000             MOVE_str         .EQU  $0673
+0038   8000             MOVE_CNT         .EQU  $0eb3
+0039   8000             MOVE_HIST        .EQU  $0eb4
+0040   8000             MOVE_byString    .EQU  $12bb
+0041   8000             MbyStrMove       .EQU  $12d8
+0042   8000             MovesToStr       .EQU  $19ee
+0043   8000             MovesOut         .EQU  $1acf
+0044   8000             MakeMove         .EQU  $2147
 0045   8000             NEXT_MVSTR       .EQU  $0186
 0046   8000             NEXT_MVCNT       .EQU  $0492
 0047   8000             NEXT_MOVES       .EQU  $0493
-0048   8000             PromoPcId        .EQU  $10f8
+0048   8000             PromoPcId        .EQU  $1938
 0049   8000             SIDE             .EQU  $0181
-0050   8000             SQi              .EQU  $0af5
-0051   8000             SQt              .EQU  $0af6
-0052   8000             SetFEN           .EQU  $1298
-0053   8000             ScanSqC          .EQU  $14de
-0054   8000             SetSqScan        .EQU  $14df
-0055   8000             ScanSqNxt        .EQU  $14e8
-0056   8000             Swap_Sides       .EQU  $1a6a
-0057   8000             UndoAllMoves     .EQU  $0ae6
-0058   8000             UnMakeMove       .EQU  $1cde
+0050   8000             SQi              .EQU  $1335
+0051   8000             SQt              .EQU  $1336
+0052   8000             SetFEN           .EQU  $1ad8
+0053   8000             ScanSqC          .EQU  $1d1e
+0054   8000             SetSqScan        .EQU  $1d1f
+0055   8000             ScanSqNxt        .EQU  $1d28
+0056   8000             Swap_Sides       .EQU  $22aa
+0057   8000             UndoAllMoves     .EQU  $1326
+0058   8000             UnMakeMove       .EQU  $251e
 0059   8000             WKSQ             .EQU  $0184
-0060   8000             printBOARD       .EQU  $14af
+0060   8000             printBOARD       .EQU  $1cef
 0061   8000             startFEN         .EQU  $0107
 0062   8000                                         
 0063   8000                                                 
@@ -2359,13 +2359,13 @@
 0371   8BDE 32 8B A3                ld (CommT2),a          ; clear comment counters
 0372   8BE1                         
 0373   8BE1 3E 00                   ld a,0                 ; set default position
-0374   8BE3 CD 98 12                call SetFEN 
+0374   8BE3 CD D8 1A                call SetFEN 
 0375   8BE6                         
 0376   8BE6 3E 01                   ld a,1
 0377   8BE8 CD D7 9B                call ChessPGN          ; This processes file again to obtain chess moves
 0378   8BEB                         
 0379   8BEB 3E 00                   ld a,0                 ; set default position
-0380   8BED CD 98 12                call SetFEN
+0380   8BED CD D8 1A                call SetFEN
 0381   8BF0 18 00                   jr ExitChPGN
 0382   8BF2                         
 0383   8BF2             ChGmDontReadMoves:
@@ -3717,7 +3717,7 @@
 1676   A4D4 CD 64 80             call Str_Len
 1677   A4D7 28 19                jr z,CNMnoMove              ; Only moves should remain
 1678   A4D9                        
-1679   A4D9 CD 74 0A             call GenMovesAndString     ; generate all valid chess moves
+1679   A4D9 CD B4 12             call GenMovesAndString     ; generate all valid chess moves
 1680   A4DC                               
 1681   A4DC CD 51 A5             call CNReplCastles
 1682   A4DF 20 05                jr nz,CN_AlreadyCst
@@ -3728,7 +3728,7 @@
 1687   A4E6             CN_AlreadyCst:
 1688   A4E6             
 1689   A4E6 11 AA A5             ld de,_mv_UCI
-1690   A4E9 CD 98 0A             call MbyStrMove             ; make one move by using string in DE
+1690   A4E9 CD D8 12             call MbyStrMove             ; make one move by using string in DE
 1691   A4EC                      
 1692   A4EC 11 AA A5             ld de,_mv_UCI
 1693   A4EF CD 9D A7             call MoveStrAppend
@@ -4192,7 +4192,7 @@
 2143   A787 C5                   push bc
 2144   A788 D5                   push de
 2145   A789 E5                   push hl
-2146   A78A 21 3E 39             ld hl,MOVE_str
+2146   A78A 21 73 06             ld hl,MOVE_str
 2147   A78D E5                   push hl
 2148   A78E D1                   pop de
 2149   A78F 13                   inc de
@@ -4214,7 +4214,7 @@
 2165   A79E C5                   push bc                  
 2166   A79F D5                   push de
 2167   A7A0 E5                   push hl
-2168   A7A1 11 3E 39             ld de,MOVE_str
+2168   A7A1 11 73 06             ld de,MOVE_str
 2169   A7A4             MVSTRApLoop:        
 2170   A7A4 1A                   ld a,(de) 
 2171   A7A5 FE 00                cp 0
@@ -4246,7 +4246,7 @@
 2197   A7C5 D5                   push de
 2198   A7C6 DD E5                push ix
 2199   A7C8                                    
-2200   A7C8 DD 21 3E 39          ld ix, MOVE_str
+2200   A7C8 DD 21 73 06          ld ix, MOVE_str
 2201   A7CC 11 D2 9B             ld de, DRdoll    ; add $
 2202   A7CF CD AC 81             call Str_Append
 2203   A7D2 DD E5                push ix

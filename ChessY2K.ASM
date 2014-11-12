@@ -88,7 +88,17 @@ NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-            
+
+; Container for UCI-string-of-moves in form "e2e4 e7e5 ... e1g1 ... b7b8q ... "
+; (set before MOVE_byString usage)
+MOVE_str: .byte "                                                                "          
+          .byte "                                                                " 
+          .byte "                                                                "
+          .byte "                                                                "
+          .byte "                                                                "
+          .ds $700
+          ;above 2Kb of moves
+                      
 ; list of moves from the root
 ; bytes:
 ;  square from,
@@ -98,9 +108,8 @@ NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 MOVE_CNT   .byte 0   ; count of moves (below 127 chess both-side-moves) 
 
-MOVE_HIST  .ds 4*2*128; 2Kb for history of chess moves 
-
-
+MOVE_HIST  .ds 1024; Kb for history of chess moves 
+          
 ; We use own memory of .COM file till now
 ;  without damaging MSX resources with malloc-style
 ;  
@@ -3637,16 +3646,7 @@ Is0ret:  pop bc
           #include "DISKs.ASM"       ; disk function diskload
           #include "String.ASM"      ; most common string functions
 
-JMP_0000: .equ $F3EF         ;good exit to DOS prompt for sure
-
-; Container for UCI-string-of-moves in form "e2e4 e7e5 ... e1g1 ... b7b8q ... "
-; (set before MOVE_byString usage)
-MOVE_str: .byte "                                                                "          
-          .byte "                                                                " 
-          .byte "                                                                "
-          .byte "                                                                "
-          .ds $700
-          ;2Kb of moves 
+JMP_0000: .equ $F3EF         ;good exit to DOS prompt for sure 
                     
 ; Exporting addresses to include them in other modules 
 ;      (recognises as labels)
