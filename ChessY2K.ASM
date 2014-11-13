@@ -88,16 +88,6 @@ NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
             .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
-; Container for UCI-string-of-moves in form "e2e4 e7e5 ... e1g1 ... b7b8q ... "
-; (set before MOVE_byString usage)
-MOVE_str: .byte "                                                                "          
-          .byte "                                                                " 
-          .byte "                                                                "
-          .byte "                                                                "
-          .byte "                                                                "
-          .ds $700
-          ;above 2Kb of moves
                       
 ; list of moves from the root
 ; bytes:
@@ -108,10 +98,19 @@ MOVE_str: .byte "                                                               
 
 MOVE_CNT   .byte 0   ; count of moves (below 127 chess both-side-moves) 
 
-MOVE_HIST  .ds 1024; Kb for history of chess moves 
+MOVE_HIST  .ds 1024; Kb for history of chess moves (4bytes per 1-side-move)
           
+; Container for UCI-string-of-moves in form "e2e4 e7e5 ... e1g1 ... b7b8q ... "
+; (set before MOVE_byString usage), it is for data passing
+MOVE_str: .byte "                                                                "          
+          .byte "                                                                " 
+          .byte "                                                                "
+          .byte "                                                                "
+          .byte "                                                                "
+          .ds $700
+          ;above 2Kb of moves
+
 ; We use own memory of .COM file till now
-;  without damaging MSX resources with malloc-style
 ;  
 ;  So, we are able to generate next chess moves, detect check and checkmate in 1.
 ;  And print it out. No reasonable chess evaluation searches possible here!

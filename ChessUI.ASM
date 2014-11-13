@@ -2391,7 +2391,7 @@ RplyTo0:
          call MbyStrMove           ; move
          call DrawBoard            ; no animation, sorry
          call PutToMove
-         call GenMovesAndString    ;GenMoves
+         call GenMoves             ; use GenMovesAndString to see
          
          ld a,(RplyMs)
          inc a

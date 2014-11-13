@@ -34,9 +34,9 @@ IsWhite          .EQU  $18f9
 IsBlack          .EQU  $1918
 IsCheck          .EQU  $1d62
 LD_Ix            .EQU  $2711
-MOVE_str         .EQU  $0673
-MOVE_CNT         .EQU  $0eb3
-MOVE_HIST        .EQU  $0eb4
+MOVE_CNT         .EQU  $0673
+MOVE_HIST        .EQU  $0674
+MOVE_str         .EQU  $0a74
 MOVE_byString    .EQU  $12bb
 MbyStrMove       .EQU  $12d8
 MovesToStr       .EQU  $19ee

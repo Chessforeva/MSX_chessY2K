@@ -34,9 +34,9 @@
 0034   8000             IsBlack          .EQU  $1918
 0035   8000             IsCheck          .EQU  $1d62
 0036   8000             LD_Ix            .EQU  $2711
-0037   8000             MOVE_str         .EQU  $0673
-0038   8000             MOVE_CNT         .EQU  $0eb3
-0039   8000             MOVE_HIST        .EQU  $0eb4
+0037   8000             MOVE_CNT         .EQU  $0673
+0038   8000             MOVE_HIST        .EQU  $0674
+0039   8000             MOVE_str         .EQU  $0a74
 0040   8000             MOVE_byString    .EQU  $12bb
 0041   8000             MbyStrMove       .EQU  $12d8
 0042   8000             MovesToStr       .EQU  $19ee
@@ -4192,7 +4192,7 @@
 2143   A787 C5                   push bc
 2144   A788 D5                   push de
 2145   A789 E5                   push hl
-2146   A78A 21 73 06             ld hl,MOVE_str
+2146   A78A 21 74 0A             ld hl,MOVE_str
 2147   A78D E5                   push hl
 2148   A78E D1                   pop de
 2149   A78F 13                   inc de
@@ -4214,7 +4214,7 @@
 2165   A79E C5                   push bc                  
 2166   A79F D5                   push de
 2167   A7A0 E5                   push hl
-2168   A7A1 11 73 06             ld de,MOVE_str
+2168   A7A1 11 74 0A             ld de,MOVE_str
 2169   A7A4             MVSTRApLoop:        
 2170   A7A4 1A                   ld a,(de) 
 2171   A7A5 FE 00                cp 0
@@ -4246,7 +4246,7 @@
 2197   A7C5 D5                   push de
 2198   A7C6 DD E5                push ix
 2199   A7C8                                    
-2200   A7C8 DD 21 73 06          ld ix, MOVE_str
+2200   A7C8 DD 21 74 0A          ld ix, MOVE_str
 2201   A7CC 11 D2 9B             ld de, DRdoll    ; add $
 2202   A7CF CD AC 81             call Str_Append
 2203   A7D2 DD E5                push ix
