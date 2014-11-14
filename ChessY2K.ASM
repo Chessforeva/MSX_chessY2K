@@ -2424,7 +2424,7 @@ V_IsThisK:                      ; king can not protect self
                                 ; stop, our piece protects anyway
 
 V_BsSt:  ld a,1                 ; stop to this direction, our piece protects king
-         jr V_BsOver
+         jp V_BsOver
           
 V_NoBK:    
          cp 'b'
@@ -2434,6 +2434,26 @@ V_NoBK:
          cp 'p'
          jr nz, V_BsSt          ; otherwise knight and cant beat
          
+         ld a,(SQk)
+         ld b,a
+         ld a,(SQ_i)
+         cp b
+         jr z, V_KuBp           ; if our king goes under pawn attack?
+         
+         ld a,(ENPSQ)
+         ld b,a
+         ld a,(SQ_t)
+         cp b
+         jr z,V_CapBep
+         jr V_KuBp
+         
+V_CapBep:                       ; we capture en-passant
+         ld a,(SQt)
+         add a,8
+         cp b
+         jr z,V_BsSt            ; this is the pawn that did check+
+
+V_KuBp:         
          ld a,(SQi)             ; pawn direction verif. black pawn is above
          ld b,a
          ld a,(SQt)           
@@ -2470,12 +2490,33 @@ V_NoWK:
          cp 'P'
          jr nz, V_BsSt          ; otherwise knight and cant beat
          
+         ld a,(SQk)
+         ld b,a
+         ld a,(SQ_i)
+         cp b
+         jr z, V_KuWp           ; if our king goes under pawn attack?
+         
+         ld a,(ENPSQ)
+         ld b,a
+         ld a,(SQ_t)
+         cp b
+         jr z,V_CapWep
+         jr V_KuWp
+         
+V_CapWep:                       ; we capture en-passant
+         ld a,(SQt)
+         sub 8
+         cp b
+         jr z,V_BsSt_f          ; this is the pawn that did check+
+
+V_KuWp:
+         
          ld a,(SQi)             ; pawn direction verif. white pawn is below
          ld b,a
          ld a,(SQt)           
          cp b
-         jr c,V_Sq1
-         jr V_BsSt
+         jr c,V_Sq1_f
+         jr V_BsSt_f
        
 V_BsOver:
 
@@ -2487,7 +2528,10 @@ V_BsOver:
          pop ix
          pop hl
          pop bc
-         ret 
+         ret
+          
+V_Sq1_f:    jp V_Sq1
+V_BsSt_f:   jp V_BsSt
 
 ; look for horizontal-vertical-attacks to that direction
 HorzVertAttacks:
@@ -3501,22 +3545,6 @@ UnMKEnp1:
                  
 ;END
       
-;BEGIN of ========== DEBUG tool
-
-; Put call DEBUGs in ASM to see that I got here
-         
-debugstr: .byte "DEBUG!$", 0  ; outputs this when reaches
-
-DEBUGs:
-
-         push de
-         ld de, debugstr
-         call PrintString
-         pop de
-         ret            
-
-        .byte "DEBUGZ",0    ; put in code to find via debugger
-;END
 
 ;BEGIN of ========== KING CHECKMATE DETECTION
 ;;
@@ -3631,6 +3659,23 @@ IsNo0_I: scf
          ccf
 Is0ret:  pop bc
          ret
+;END
+
+;BEGIN of ========== DEBUG tool
+
+; Put call DEBUGs in ASM to see that I got here
+         
+debugstr: .byte "DEBUG!$", 0  ; outputs this when reaches
+
+DEBUGs:
+
+         push de
+         ld de, debugstr
+         call PrintString
+         pop de
+         ret            
+
+        .byte "DEBUGZ",0    ; put in code to find via debugger
 ;END
 
       

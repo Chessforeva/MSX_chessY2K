@@ -22,8 +22,8 @@ BoardOut         .EQU  $1c9d
 CASTLES          .EQU  $0182
 CaptPiece        .EQU  $1937
 CastlMove        .EQU  $1939
-DEBUGs           .EQU  $2688
-DEC_I            .EQU  $271a
+DEC_I            .EQU  $2745
+DEBUGs           .EQU  $276e
 ENPSQ            .EQU  $0183
 GenMovesAndString .EQU  $12b4
 GenMoves         .EQU  $1338
@@ -33,7 +33,7 @@ IsOccupied       .EQU  $18ee
 IsWhite          .EQU  $18f9
 IsBlack          .EQU  $1918
 IsCheck          .EQU  $1d62
-LD_Ix            .EQU  $2711
+LD_Ix            .EQU  $273c
 MOVE_CNT         .EQU  $0673
 MOVE_HIST        .EQU  $0674
 MOVE_str         .EQU  $0a74
@@ -41,7 +41,7 @@ MOVE_byString    .EQU  $12bb
 MbyStrMove       .EQU  $12d8
 MovesToStr       .EQU  $19ee
 MovesOut         .EQU  $1acf
-MakeMove         .EQU  $2147
+MakeMove         .EQU  $218a
 NEXT_MVSTR       .EQU  $0186
 NEXT_MVCNT       .EQU  $0492
 NEXT_MOVES       .EQU  $0493
@@ -53,9 +53,9 @@ SetFEN           .EQU  $1ad8
 ScanSqC          .EQU  $1d1e
 SetSqScan        .EQU  $1d1f
 ScanSqNxt        .EQU  $1d28
-Swap_Sides       .EQU  $22aa
+Swap_Sides       .EQU  $22ed
 UndoAllMoves     .EQU  $1326
-UnMakeMove       .EQU  $251e
+UnMakeMove       .EQU  $2561
 WKSQ             .EQU  $0184
 printBOARD       .EQU  $1cef
 startFEN         .EQU  $0107
