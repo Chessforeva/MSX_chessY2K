@@ -55,25 +55,6 @@ CASTLES:  .byte 0       ; castling allowance flags
 ENPSQ:    .byte $ff     ; en-passant square none
 WKSQ:     .byte 0       ; square of white king
 BKSQ:     .byte 0       ; square of black king
-
-;
-; variables and arrays for next movement generation
-; (for printing and displaying)          
-NEXT_MVSTR: .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "                      
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "                      
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
-            .byte "                                                    "
             
 NEXT_MVCNT: .byte 0      ;count, values, and string to output          
 NEXT_MOVES: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -110,6 +91,24 @@ MOVE_str: .byte "                                                               
           .ds $700
           ;above 2Kb of moves
 
+;
+; variables and arrays for next movement generation
+; (for printing and displaying)          
+NEXT_MVSTR: .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "                      
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "                      
+            .byte "                                                    "
+            .byte "                                                    "
+            .byte "                                                    "
+            
 ; We use own memory of .COM file till now
 ;  
 ;  So, we are able to generate next chess moves, detect check and checkmate in 1.
@@ -2350,7 +2349,8 @@ DiognalAttacks:
          inc a           ;a=direction +1 of X 
          cp 8
          jr nc, V_BsSt
-         jr V_BsCanOk1  
+         jr V_BsCanOk1
+         
 V_BsNegX:
          ld a,0          ;a=direction -1 of X
          cp d
@@ -2390,7 +2390,7 @@ V_BsCanOk2:
          ld b,a
          ld a, (SQ_i)
          cp b
-         jr z,V_cont           ; if piece is on that square then will be empty
+         jr z,V_cont_f        ; if piece is on that square then will be empty
          ld a, (SQ_t)
          cp b
          jr z,V_IsThisK       ; if piece goes to that square
@@ -2413,7 +2413,9 @@ V_BsThisWhite:
 V_Sq1:   ld a, (SQ1)            ; nearby square
          cp 1
          jr nz,V_BsSt
-         jr V_dont              ; king or pawn beats 
+         jr V_dont              ; king or pawn beats
+
+V_cont_f:   jp V_cont
          
 V_IsThisK:                      ; king can not protect self
          ld a,(SQk)
@@ -2447,11 +2449,14 @@ V_NoBK:
          jr z,V_CapBep
          jr V_KuBp
          
-V_CapBep:                       ; we capture en-passant
+V_CapBep:                       ; do we capture en-passant?
          ld a,(SQt)
          add a,8
          cp b
-         jr z,V_BsSt            ; this is the pawn that did check+
+         jr nz,V_KuBp
+         ld a,(CaptPiece)       ; we are capturing
+         cp 0
+         jr nz,V_BsSt           ; this is the pawn that did check+       
 
 V_KuBp:         
          ld a,(SQi)             ; pawn direction verif. black pawn is above
@@ -2503,11 +2508,14 @@ V_NoWK:
          jr z,V_CapWep
          jr V_KuWp
          
-V_CapWep:                       ; we capture en-passant
+V_CapWep:                       ; do we capture en-passant?
          ld a,(SQt)
          sub 8
          cp b
-         jr z,V_BsSt_f          ; this is the pawn that did check+
+         jr nz,V_KuWp
+         ld a,(CaptPiece)       ; we are capturing
+         cp 0
+         jr nz,V_BsSt_f         ; this is the pawn that did check+       
 
 V_KuWp:
          
@@ -2529,7 +2537,7 @@ V_BsOver:
          pop hl
          pop bc
          ret
-          
+                
 V_Sq1_f:    jp V_Sq1
 V_BsSt_f:   jp V_BsSt
 
