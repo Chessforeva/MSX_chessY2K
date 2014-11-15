@@ -24,3 +24,17 @@ It makes large and sometimes empty media files.
 Chessforeva
 http://chessforeva.blogspot.com/2012/10/msx-chess-project.html
 2012
+
+
+Keyboard controls:
+2 x one keypress is disabled, use "/" key to repeat last keyboard action.
+(this gives ++performance)
+
+PGN replay mode.
+  Use Enter or Space. "U" is undo-move.
+
+Chess position setup mode.
+  Move cursor with  Left,Right,Up,Down.
+  Put pieces with  K,k,Q,q,R,r,B,b,N,n,P,p. Space key clears the square.
+
+
