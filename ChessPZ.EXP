@@ -6172,542 +6172,551 @@
 1946+  3326                       ;and process other key controls
 1947+  3326                                               
 1948+  3326 CD 9F 33             call IfCursorKeys       ; process if cursor key has been pressed
-1949+  3329             CKeyPsetup:
-1950+  3329 CD 06 34             call IfPieceSetupKeys   ; process if setup of pieces key has been pressed
-1951+  332C                      
-1952+  332C              
-1953+  332C FE 75                cp 'u'             ; If U was pressed, try undomove
-1954+  332E 20 0C                jr nz, CkeyIf_u
-1955+  3330             CkeyU:         
-1956+  3330                                         ; use the same key that was before
-1957+  3330             
-1958+  3330~            #ifdef PGN_COMPILE
-1959+  3330~            
-1960+  3330~                     call DO_Replay_UnmakeMove   ; unmake last move in replay
-1961+  3330             #else
-1962+  3330 3A 5B 27             ld a,(Stylo)
-1963+  3333 CB 47                bit 0,a
-1964+  3335 28 09                jr z,CkeyNo        ; if cursor allowed
-1965+  3337 CD D8 29             call Chess_UnMake_Move_U    ; unmake last move
-1966+  333A             #endif
-1967+  333A 18 04                jr CkeyNo
-1968+  333C             CkeyIf_u:
-1969+  333C FE 55                cp 'U'
-1970+  333E 28 F0                jr z, CkeyU
-1971+  3340                      
-1972+  3340             CkeyIfNoU:
-1973+  3340             
-1974+  3340             CkeyNo:
-1975+  3340 C1                   pop bc
-1976+  3341 F1                   pop af
-1977+  3342 C9                   ret 
-1978+  3343             
-1979+  3343                     
-1980+  3343             ;-------------------- If space key pressed -the long one
-1981+  3343             CKeySpacePressed:         
-1982+  3343 F5                   push af
-1983+  3344 3A 5B 27             ld a,(Stylo)
-1984+  3347                      
-1985+  3347~            #ifdef PGN_COMPILE 
-1986+  3347~                     
-1987+  3347~                     call DO_Replay_Move            ; if REPLAY mode
-1988+  3347~            
-1989+  3347             #else         
-1990+  3347                      
-1991+  3347 CB 47                bit 0,a                   ; if cursor is not allowed 
-1992+  3349 28 4F                jr z,CSpcOver
-1993+  334B                               
-1994+  334B CB 57                bit 2,a                   ; if setup of pieces then empty square
-1995+  334D 28 07                jr z,CSpcNPS
-1996+  334F 3E 20                ld a,' '
-1997+  3351 CD 06 34             call IfPieceSetupKeys     ; process if setup of pieces key has been pressed
-1998+  3354 18 44                jr CSpcOver
-1999+  3356             CSpcNPS:         
-2000+  3356 CB 4F                bit 1,a                   ; if can not drag and move pieces 
-2001+  3358 28 40                jr z,CSpcOver
-2002+  335A             
-2003+  335A 3A 2D 2B             ld a,(AnimI)
-2004+  335D FE 00                cp 0
-2005+  335F 20 39                jr nz,CSpcOver            ; animation process right now
-2006+  3361 3A 5D 27             ld a,(DragSq)
-2007+  3364 FE FF                cp $ff
-2008+  3366 20 16                jr nz, CDragWas
-2009+  3368             CSpcDragz:         
-2010+  3368 3E 00                ld a,0
-2011+  336A CD 4B 2A             call IsValidDragMove
-2012+  336D FE 00                cp 0
-2013+  336F 28 29                jr z, CSpcOver           ; if drag not valid
-2014+  3371                               
-2015+  3371 3A 5C 27             ld a,(CursorSq)
-2016+  3374 32 5D 27             ld (DragSq),a
-2017+  3377 18 21                jr CSpcOver
-2018+  3379                      
-2019+  3379             CSpcTryDrag:
-2020+  3379 CD D3 2C             call DrawBoard       ; redraw all
-2021+  337C 18 EA                jr CSpcDragz        
-2022+  337E                      
-2023+  337E             CDragWas:
-2024+  337E 32 1B 2B             ld (Move_sq_f),a
-2025+  3381 3E 01                ld a,1
-2026+  3383 CD 4B 2A             call IsValidDragMove
-2027+  3386 F5                   push af
-2028+  3387 3E FF                ld a,$ff
-2029+  3389 32 5D 27             ld (DragSq),a
-2030+  338C F1                   pop af
-2031+  338D FE 00                cp 0
-2032+  338F 28 E8                jr z, CSpcTryDrag      ; if move not valid
-2033+  3391             
-2034+  3391 3A 5C 27             ld a,(CursorSq)
-2035+  3394 32 1C 2B             ld (Move_sq_t),a
-2036+  3397                      
-2037+  3397 CD B5 29             call Chess_Move_Cursor          ; this will set animation and do the move
-2038+  339A             CSpcOver:
-2039+  339A CD 70 32             call DrawCursor
-2040+  339D                      
-2041+  339D             #endif         
-2042+  339D F1                   pop af
-2043+  339E C9                   ret         
-2044+  339F                      
-2045+  339F             ;---------------------------------
-2046+  339F             ; If cursor arrow keys pressed
-2047+  339F             ;
-2048+  339F             IfCursorKeys:
-2049+  339F             
-2050+  339F F5                   push af     
-2051+  33A0 FE 1D                cp 29
-2052+  33A2 20 17                jr nz, CkeyIfCurs2
-2053+  33A4                                                ; LEFT pressed                                 
-2054+  33A4 3A 5C 27             ld a,(CursorSq)
-2055+  33A7 4F                   ld c,a                                   
-2056+  33A8 E6 07                and 7
-2057+  33AA FE 00                cp 0
-2058+  33AC 28 56                jr z,CkeyCKexit
-2059+  33AE 79                   ld a,c
-2060+  33AF CD EA 2C             call DrawSquare
-2061+  33B2 3D                   dec a
-2062+  33B3                      
-2063+  33B3             CKeyCursMv:
-2064+  33B3 32 5C 27             ld (CursorSq),a
-2065+  33B6 CD 70 32             call DrawCursor
-2066+  33B9 18 49                jr CkeyCKexit
-2067+  33BB             
-2068+  33BB             CkeyIfCurs2:  
-2069+  33BB FE 1C                cp 28
-2070+  33BD 20 11                jr nz, CkeyIfCurs3                                       
-2071+  33BF                                                ; RIGHT pressed                                      
-2072+  33BF 3A 5C 27             ld a,(CursorSq)
-2073+  33C2 4F                   ld c,a         
-2074+  33C3 E6 07                and 7
-2075+  33C5 FE 07                cp 7
-2076+  33C7 28 3B                jr z,CkeyCKexit
-2077+  33C9 79                   ld a,c
-2078+  33CA CD EA 2C             call DrawSquare
-2079+  33CD 3C                   inc a         
-2080+  33CE 18 E3                jr CKeyCursMv
-2081+  33D0             
-2082+  33D0                                                                                                                           
-2083+  33D0             CkeyIfCurs3:
-2084+  33D0 FE 1E                cp 30
-2085+  33D2 20 16                jr nz, CkeyIfCurs4                                       
-2086+  33D4                                                ; UP pressed                                   
-2087+  33D4 3A 5C 27             ld a,(CursorSq)
-2088+  33D7 4F                   ld c,a                                           
-2089+  33D8 CB 3F                srl a
-2090+  33DA CB 3F                srl a
-2091+  33DC CB 3F                srl a
-2092+  33DE FE 07                cp 7
-2093+  33E0 28 22                jr z,CkeyCKexit
-2094+  33E2 79                   ld a,c
-2095+  33E3 CD EA 2C             call DrawSquare
-2096+  33E6 C6 08                add a,8                 
-2097+  33E8 18 C9                jr CKeyCursMv
-2098+  33EA                                                 
-2099+  33EA             CkeyIfCurs4:
-2100+  33EA FE 1F                cp 31
-2101+  33EC 20 16                jr nz, CkeyCKexit                                      
-2102+  33EE                                                ; DOWN pressed                                   
-2103+  33EE 3A 5C 27             ld a,(CursorSq)
-2104+  33F1 4F                   ld c,a                                           
-2105+  33F2 CB 3F                srl a
-2106+  33F4 CB 3F                srl a
-2107+  33F6 CB 3F                srl a
-2108+  33F8 FE 00                cp 0
-2109+  33FA 28 08                jr z,CkeyCKexit
-2110+  33FC 79                   ld a,c
-2111+  33FD CD EA 2C             call DrawSquare
-2112+  3400 D6 08                sub 8        
-2113+  3402 18 AF                jr CKeyCursMv
-2114+  3404                      
-2115+  3404             CkeyCKexit:
-2116+  3404 F1                   pop af         
-2117+  3405 C9                   ret
-2118+  3406             
-2119+  3406             ;---------------------------------
-2120+  3406             ; If piece keys PNBRQK pressed
-2121+  3406             ;
-2122+  3406             IfPieceSetupKeys:
-2123+  3406 F5                   push af
-2124+  3407 C5                   push bc
-2125+  3408 D5                   push de
-2126+  3409 E5                   push hl
-2127+  340A 47                   ld b,a   ;save code
-2128+  340B FE 50                cp 'P'
-2129+  340D 28 32                jr z,CsetupWP
-2130+  340F FE 4E                cp 'N'
-2131+  3411 28 3B                jr z,CsetupWN
-2132+  3413 FE 42                cp 'B'
-2133+  3415 28 37                jr z,CsetupWB
-2134+  3417 FE 52                cp 'R'
-2135+  3419 28 33                jr z,CsetupWR
-2136+  341B FE 51                cp 'Q'
-2137+  341D 28 2F                jr z,CsetupWQ
-2138+  341F FE 4B                cp 'K'
-2139+  3421 28 2D                jr z,CsetupWK
-2140+  3423 FE 70                cp 'p'
-2141+  3425 28 1A                jr z,CsetupBP
-2142+  3427 FE 6E                cp 'n'
-2143+  3429 28 23                jr z,CsetupBN
-2144+  342B FE 62                cp 'b'
-2145+  342D 28 1F                jr z,CsetupBB
-2146+  342F FE 72                cp 'r'
-2147+  3431 28 1B                jr z,CsetupBR
-2148+  3433 FE 71                cp 'q'
-2149+  3435 28 17                jr z,CsetupBQ
-2150+  3437 FE 6B                cp 'k'
-2151+  3439 28 21                jr z,CsetupBK
-2152+  343B FE 20                cp ' '
-2153+  343D 28 2B                jr z,CsetupBlank
-2154+  343F 18 27                jr CsetupDoNothing
-2155+  3441             CsetupWP:
-2156+  3441             CsetupBP:
-2157+  3441 3A 5C 27             ld a,(CursorSq)
-2158+  3444 FE 08                cp 8
-2159+  3446 38 7C                jr c,CsetupKexit
-2160+  3448 FE 38                cp 56
-2161+  344A 30 78                jr nc,CsetupKexit
-2162+  344C 18 1E                jr Csetup2        
-2163+  344E             CsetupWN:
-2164+  344E             CsetupWB:
-2165+  344E             CsetupWR:
-2166+  344E             CsetupWQ:
-2167+  344E             CsetupBN:
-2168+  344E             CsetupBB:
-2169+  344E             CsetupBR:
-2170+  344E             CsetupBQ:
-2171+  344E 18 1C                jr Csetup2
-2172+  3450             CsetupWK:
-2173+  3450 3A 84 01             ld a,(WKSQ)
-2174+  3453 FE FF                cp $ff
-2175+  3455 28 03                jr z,Csu2WK
-2176+  3457 CD C9 34             call CsuKRmv    ; White king not here anymore
-2177+  345A 18 10       Csu2WK:  jr Csetup2
-2178+  345C             
-2179+  345C             
-2180+  345C             CsetupBK:
-2181+  345C 3A 85 01             ld a,(BKSQ)
-2182+  345F FE FF                cp $ff
-2183+  3461 28 03                jr z,Csu2BK
-2184+  3463 CD C9 34             call CsuKRmv    ; Black king not here anymore
-2185+  3466 18 04       Csu2BK:  jr Csetup2
-2186+  3468                      
-2187+  3468             CsetupDoNothing:
-2188+  3468 18 5A                jr CsetupKexit  ; exit
-2189+  346A             
-2190+  346A 06 00       CsetupBlank: ld b,0 ; will be empty square
-2191+  346C             
-2192+  346C             Csetup2:               ;puts new piece on board or clears square
-2193+  346C 3A 5C 27             ld a,(CursorSq)
-2194+  346F CD FF 2B             call ObtainHLboardBySq
-2195+  3472 4F                   ld c,a
-2196+  3473 3A 84 01             ld a,(WKSQ)
-2197+  3476 B9                   cp c
-2198+  3477 20 07                jr nz,CsuNoOverWK
-2199+  3479 3E FF                ld a,$ff
-2200+  347B 32 84 01             ld (WKSQ),a
-2201+  347E 18 0B                jr CsuOverK       
-2202+  3480             CsuNoOverWK:       
-2203+  3480 3A 85 01             ld a,(BKSQ)
-2204+  3483 B9                   cp c
-2205+  3484 20 05                jr nz,CsuOverK
-2206+  3486 3E FF                ld a,$ff
-2207+  3488 32 85 01             ld (BKSQ),a
-2208+  348B             
-2209+  348B             CsuOverK:     
-2210+  348B 78                   ld a,b
-2211+  348C FE 4B                cp 'K'
-2212+  348E 20 06                jr nz, CsuNoWKnwpos
-2213+  3490 79                   ld a,c
-2214+  3491 32 84 01             ld (WKSQ),a
-2215+  3494 18 08                jr CsuOverK2
-2216+  3496             CsuNoWKnwpos:
-2217+  3496 FE 6B                cp 'k'
-2218+  3498 20 04                jr nz, CsuOverK2
-2219+  349A 79                   ld a,c
-2220+  349B 32 85 01             ld (BKSQ),a
-2221+  349E             CsuOverK2:
-2222+  349E 78                   ld a,b
-2223+  349F 70                   ld (hl),b          ; new piece or empty square here
-2224+  34A0 FE 00                cp 0
-2225+  34A2 28 0D                jr z,CsuNSd
-2226+  34A4 FE 5A                cp 'Z'
-2227+  34A6 30 04                jr nc,CsetupBlackPc
-2228+  34A8 3E 00                ld a,0
-2229+  34AA 18 02                jr CsuSDm
-2230+  34AC             CsetupBlackPc:         
-2231+  34AC 3E 01                ld a,1
-2232+  34AE 32 81 01    CsuSDm:  ld (SIDE),a
-2233+  34B1 CD 7C 31    CsuNSd:  call PutToMove
-2234+  34B4 79                   ld a,c        
-2235+  34B5 CD EA 2C             call DrawSquare
-2236+  34B8 CD DB 34             call RecalcCastles ;what castlings are possible?
-2237+  34BB CD 70 32             call DrawCursor
-2238+  34BE 11 0A 29             ld de,wasSetUpFEN
-2239+  34C1 CD 68 1B             call GetFEN        ;keeps actual FEN for position
-2240+  34C4             CsetupKexit:
-2241+  34C4 E1                   pop hl         
-2242+  34C5 D1                   pop de
-2243+  34C6 C1                   pop bc
-2244+  34C7 F1                   pop af
-2245+  34C8 C9                   ret
-2246+  34C9             
-2247+  34C9             ; this is used for kings to remove them from board
-2248+  34C9 F5          CsuKRmv: push af
-2249+  34CA C5                   push bc
-2250+  34CB E5                   push hl
-2251+  34CC 4F                   ld c,a
-2252+  34CD CD FF 2B             call ObtainHLboardBySq
-2253+  34D0 3E 00                ld a,0
-2254+  34D2 77                   ld (hl),a
-2255+  34D3 79                   ld a,c
-2256+  34D4 CD EA 2C             call DrawSquare ; empty square now         
-2257+  34D7 E1                   pop hl
-2258+  34D8 C1                   pop bc
-2259+  34D9 F1                   pop af
-2260+  34DA C9                   ret
-2261+  34DB             ;
-2262+  34DB             ; this calculates maximum possible castling and sets flags
-2263+  34DB             ; otherwise movements may not work normally
-2264+  34DB             ; 
-2265+  34DB             RecalcCastles:
-2266+  34DB F5                   push af
-2267+  34DC F5                   push af
-2268+  34DD E5                   push hl
-2269+  34DE 06 00                ld b,0         ; new flags for castlings
-2270+  34E0 3A 84 01             ld a,(WKSQ)
-2271+  34E3 FE 04                cp 4
-2272+  34E5 20 18                jr nz,RclcBlack
-2273+  34E7 3E 07                ld a,7
-2274+  34E9 CD FF 2B             call ObtainHLboardBySq
-2275+  34EC 7E                   ld a,(hl)
-2276+  34ED FE 52                cp 'R'
-2277+  34EF 20 02                jr nz,RclnWr1
-2278+  34F1 CB C0                set 0,b
-2279+  34F3 3E 00       RclnWr1: ld a,0
-2280+  34F5 CD FF 2B             call ObtainHLboardBySq
-2281+  34F8 7E                   ld a,(hl)
-2282+  34F9 FE 52                cp 'R'
-2283+  34FB 20 02                jr nz,RclcBlack
-2284+  34FD CB C8                set 1,b
-2285+  34FF             RclcBlack:
-2286+  34FF 3A 85 01             ld a,(BKSQ)
-2287+  3502 FE 3C                cp 60
-2288+  3504 20 18                jr nz,RclcOver
-2289+  3506 3E 3F                ld a,63
-2290+  3508 CD FF 2B             call ObtainHLboardBySq
-2291+  350B 7E                   ld a,(hl)
-2292+  350C FE 72                cp 'r'
-2293+  350E 20 02                jr nz,RclnBr1
-2294+  3510 CB D0                set 2,b
-2295+  3512 3E 38       RclnBr1: ld a,56
-2296+  3514 CD FF 2B             call ObtainHLboardBySq
-2297+  3517 7E                   ld a,(hl)
-2298+  3518 FE 72                cp 'r'
-2299+  351A 20 02                jr nz,RclcOver
-2300+  351C CB D8                set 3,b
-2301+  351E             RclcOver:
-2302+  351E 78                   ld a,b
-2303+  351F 32 82 01             ld (CASTLES),a
-2304+  3522 E1                   pop hl
-2305+  3523 C1                   pop bc
-2306+  3524 F1                   pop af
-2307+  3525 C9                   ret                                                                                                                                                      
-2308+  3526             
-2309+  3526             
-2310+  3526             ;---------------------------------
-2311+  3526             ; Redraw squares around.
-2312+  3526             ; Intended for large cursor
-2313+  3526             ; Not used, as DrawCursor does the same.
-2314+  3526             ;---------------------------------
-2315+  3526 2D 09 2D 08 _AsqDirc: .byte '-',9,'-',8,'-',7,'-',1,'=',0,'+',1,'+',7,'+',8,'+',9
-2315+  352A 2D 07 2D 01 
-2315+  352E 3D 00 2B 01 
-2315+  3532 2B 07 2B 08 
-2315+  3536 2B 09 
-2316+  3538             
-2317+  3538             RedrawSquaresAround:
-2318+  3538             
-2319+  3538 F5                   push af
-2320+  3539 C5                   push bc
-2321+  353A D5                   push de
-2322+  353B E5                   push hl
-2323+  353C 21 26 35             ld hl,_AsqDirc
-2324+  353F 06 09                ld b,9
-2325+  3541 4F                   ld c,a
-2326+  3542             ArndSqScan
-2327+  3542 7E                   ld a,(hl)
-2328+  3543 23                   inc hl
-2329+  3544 FE 2D                cp '-'
-2330+  3546 28 08                jr z,ArndSqDec
-2331+  3548 7E                   ld a,(hl)
-2332+  3549 81                   add a,c
-2333+  354A FE 3F                cp 63
-2334+  354C 38 0A                jr c,ArndSqNo
-2335+  354E 18 05                jr ArndSqYes                 
-2336+  3550             ArndSqDec:         
-2337+  3550 56                   ld d,(hl)
-2338+  3551 79                   ld a,c
-2339+  3552 92                   sub d
-2340+  3553 38 03                jr c,ArndSqNo
-2341+  3555             ArndSqYes:         
-2342+  3555 CD EA 2C             call DrawSquare   ; if square on board then redraw
-2343+  3558             ArndSqNo:
-2344+  3558 79                   ld a,c
-2345+  3559 23                   inc hl
-2346+  355A 10 E6                djnz ArndSqScan
-2347+  355C E1                   pop hl
-2348+  355D D1                   pop de
-2349+  355E C1                   pop bc
-2350+  355F F1                   pop af
-2351+  3560 C9                   ret
-2352+  3561             
-2353+  3561                      
-2354+  3561             ;-----------------------------------------------------------
-2355+  3561             ;
-2356+  3561             ; Process replay of one move
-2357+  3561             ;
-2358+  3561             ;-----------------------------------------------------------
-2359+  3561             DO_Replay_Move:
-2360+  3561 F5                   push af
-2361+  3562 C5                   push bc
-2362+  3563 D5                   push de
-2363+  3564 E5                   push hl
-2364+  3565                               
-2365+  3565 11 68 07             ld de, MOVE_str
-2366+  3568 3A 5E 27             ld a,(RplyMs)
-2367+  356B 47                   ld b,a
-2368+  356C FE 00                cp 0
-2369+  356E 28 1A                jr z,RplyTo0
-2370+  3570             RplyLoopMv:
-2371+  3570 13                   inc de
-2372+  3571 13                   inc de
-2373+  3572 13                   inc de
-2374+  3573 13                   inc de
-2375+  3574 1A                   ld a,(de)
-2376+  3575 FE 20                cp 32
-2377+  3577 28 01                jr z,RplyNskp1
-2378+  3579 13                   inc de          ;skip promotion
-2379+  357A             RplyNskp1:
-2380+  357A 13                   inc de         
-2381+  357B 1A                   ld a,(de)
-2382+  357C FE 20                cp 32
-2383+  357E 28 1D                jr z,RplyNoMv
-2384+  3580 FE 00                cp 0
-2385+  3582 28 19                jr z,RplyNoMv
-2386+  3584 FE 24                cp '$'
-2387+  3586 28 15                jr z,RplyNoMv
-2388+  3588             
-2389+  3588 10 E6                djnz RplyLoopMv
-2390+  358A             RplyTo0:
-2391+  358A CD A4 12             call MbyStrMove           ; move
-2392+  358D CD D3 2C             call DrawBoard            ; no animation, sorry
-2393+  3590 CD 7C 31             call PutToMove
-2394+  3593 CD 04 13             call GenMoves             ; use GenMovesAndString to see
-2395+  3596                      
-2396+  3596 3A 5E 27             ld a,(RplyMs)
-2397+  3599 3C                   inc a
-2398+  359A 32 5E 27             ld (RplyMs),a
-2399+  359D             RplyNoMv:
-2400+  359D E1                   pop hl       
-2401+  359E D1                   pop de
-2402+  359F C1                   pop bc
-2403+  35A0 F1                   pop af
-2404+  35A1 C9                   ret
-2405+  35A2             
-2406+  35A2                     
-2407+  35A2             DO_Replay_UnmakeMove:
-2408+  35A2 F5                   push af
-2409+  35A3 3A 5E 27             ld a,(RplyMs)
-2410+  35A6 FE 00                cp 0
-2411+  35A8 28 13                jr z,RplyUMKret
-2412+  35AA CD 3E 25             call UnMakeMove
-2413+  35AD CD D3 2C             call DrawBoard            ; no animation, sorry
-2414+  35B0 CD 7C 31             call PutToMove
-2415+  35B3 CD 04 13             call GenMoves
-2416+  35B6 3A 5E 27             ld a,(RplyMs)
-2417+  35B9 3D                   dec a
-2418+  35BA 32 5E 27             ld (RplyMs),a
-2419+  35BD             RplyUMKret:
-2420+  35BD F1                   pop af
-2421+  35BE C9                   ret
-2422+  35BF                               
-2423+  35BF             
-2424+  35BF 00          Loaded2VRAM: .byte 0       ; pre-loading of datas from file just once,
-2425+  35C0                                        ; after the VRAM memory could be used only.
-2426+  35C0                                        
-2427+  35C0             Chess_GraphDatas_address:   .equ $8000         ; address where to load module
-2428+  35C0             
-2429+  35C0             Chess_GraphDatas_filename:
-2430+  35C0 00 43 48 45            .byte 0, "CHESSPI CO2",0            ; name of file
-2430+  35C4 53 53 50 49 
-2430+  35C8 20 43 4F 32 
-2430+  35CC 00 
-2431+  35CD             
-2432+  35CD             ChessY2K_GraphDatas_load:
-2433+  35CD F5                      push af
-2434+  35CE 3A BF 35                ld a,(Loaded2VRAM)
-2435+  35D1                         
-2436+  35D1 FE 00                   cp 0
-2437+  35D3 20 12                   jr nz,GraphDatas_ok
-2438+  35D5             
-2439+  35D5 E5                      push hl
-2440+  35D6 D5                      push de
-2441+  35D7 21 C0 35                ld hl,Chess_GraphDatas_filename
-2442+  35DA 11 00 80                ld de,Chess_GraphDatas_address
-2443+  35DD CD 2E 3C                call diskload                     ; loads datas
-2444+  35E0 D1                      pop de
-2445+  35E1 E1                      pop hl
-2446+  35E2                         
-2447+  35E2 3E 01                   ld a,1
-2448+  35E4 32 BF 35                ld (Loaded2VRAM),a                ; VRAM ok
-2449+  35E7             GraphDatas_ok:
-2450+  35E7 F1                      pop af
-2451+  35E8 C9                      ret
-2452+  35E9             
-2453+  35E9                         ;                                                                               
-2454+  35E9                         ; Data files for pieces Colour of piece (B or W) 
-2455+  35E9                         ;   + Name of piece ("KQRBNP" or empty square)
-2456+  35E9                         ;   + colour of square under (read black bishop on black square)
-2457+  35E9             
-2458+  35E9             tbPalettes:
-2459+  35E9                         ;table of colours Nr,R,G,B
-2460+  35E9                         ;  thanks to bmp2msx software (http://www.imasy.or.jp/~hra/)
-2461+  35E9 00 06 06 05         .byte $0,6,6,5
-2462+  35ED 01 05 03 02         .byte $1,5,3,2
-2463+  35F1 02 00 00 00         .byte $2,0,0,0
-2464+  35F5 03 07 07 06         .byte $3,7,7,6
-2465+  35F9 04 05 04 03         .byte $4,5,4,3
-2466+  35FD 05 05 05 05         .byte $5,5,5,5
-2467+  3601 06 06 06 06         .byte $6,6,6,6
-2468+  3605 07 03 02 02         .byte $7,3,2,2
-2469+  3609 08 03 03 03         .byte $8,3,3,3
-2470+  360D 09 06 05 04         .byte $9,6,5,4
-2471+  3611 0A 04 04 03         .byte $A,4,4,3
-2472+  3615 0B 01 01 01         .byte $B,1,1,1
-2473+  3619 0C 02 01 01         .byte $C,2,1,1
-2474+  361D 0D 06 05 06         .byte $D,6,5,6
-2475+  3621 0E 01 01 02         .byte $E,1,1,2
-2476+  3625 0F 01 02 01         .byte $F,1,2,1
-2477+  3629                     3695   3629                       #include "ChessMN.ASM"     ; MENU choices
+1949+  3329             
+1950+  3329             CKeyPsetup:
+1951+  3329             
+1952+  3329~            #ifdef PGN_COMPILE
+1953+  3329~            
+1954+  3329~                     nop
+1955+  3329~                     nop
+1956+  3329~                     nop
+1957+  3329             #else
+1958+  3329                      
+1959+  3329 CD 06 34             call IfPieceSetupKeys   ; process if setup of pieces key has been pressed
+1960+  332C             #endif
+1961+  332C              
+1962+  332C FE 75                cp 'u'             ; If U was pressed, try undomove
+1963+  332E 20 0C                jr nz, CkeyIf_u
+1964+  3330             CkeyU:         
+1965+  3330                                         ; use the same key that was before
+1966+  3330             
+1967+  3330~            #ifdef PGN_COMPILE
+1968+  3330~            
+1969+  3330~                     call DO_Replay_UnmakeMove   ; unmake last move in replay
+1970+  3330             #else
+1971+  3330 3A 5B 27             ld a,(Stylo)
+1972+  3333 CB 47                bit 0,a
+1973+  3335 28 09                jr z,CkeyNo        ; if cursor allowed
+1974+  3337 CD D8 29             call Chess_UnMake_Move_U    ; unmake last move
+1975+  333A             #endif
+1976+  333A 18 04                jr CkeyNo
+1977+  333C             CkeyIf_u:
+1978+  333C FE 55                cp 'U'
+1979+  333E 28 F0                jr z, CkeyU
+1980+  3340                      
+1981+  3340             CkeyIfNoU:
+1982+  3340             
+1983+  3340             CkeyNo:
+1984+  3340 C1                   pop bc
+1985+  3341 F1                   pop af
+1986+  3342 C9                   ret 
+1987+  3343             
+1988+  3343                     
+1989+  3343             ;-------------------- If space key pressed -the long one
+1990+  3343             CKeySpacePressed:         
+1991+  3343 F5                   push af
+1992+  3344 3A 5B 27             ld a,(Stylo)
+1993+  3347                      
+1994+  3347~            #ifdef PGN_COMPILE 
+1995+  3347~                     
+1996+  3347~                     call DO_Replay_Move            ; if REPLAY mode
+1997+  3347~            
+1998+  3347             #else         
+1999+  3347                      
+2000+  3347 CB 47                bit 0,a                   ; if cursor is not allowed 
+2001+  3349 28 4F                jr z,CSpcOver
+2002+  334B                               
+2003+  334B CB 57                bit 2,a                   ; if setup of pieces then empty square
+2004+  334D 28 07                jr z,CSpcNPS
+2005+  334F 3E 20                ld a,' '
+2006+  3351 CD 06 34             call IfPieceSetupKeys     ; process if setup of pieces key has been pressed
+2007+  3354 18 44                jr CSpcOver
+2008+  3356             CSpcNPS:         
+2009+  3356 CB 4F                bit 1,a                   ; if can not drag and move pieces 
+2010+  3358 28 40                jr z,CSpcOver
+2011+  335A             
+2012+  335A 3A 2D 2B             ld a,(AnimI)
+2013+  335D FE 00                cp 0
+2014+  335F 20 39                jr nz,CSpcOver            ; animation process right now
+2015+  3361 3A 5D 27             ld a,(DragSq)
+2016+  3364 FE FF                cp $ff
+2017+  3366 20 16                jr nz, CDragWas
+2018+  3368             CSpcDragz:         
+2019+  3368 3E 00                ld a,0
+2020+  336A CD 4B 2A             call IsValidDragMove
+2021+  336D FE 00                cp 0
+2022+  336F 28 29                jr z, CSpcOver           ; if drag not valid
+2023+  3371                               
+2024+  3371 3A 5C 27             ld a,(CursorSq)
+2025+  3374 32 5D 27             ld (DragSq),a
+2026+  3377 18 21                jr CSpcOver
+2027+  3379                      
+2028+  3379             CSpcTryDrag:
+2029+  3379 CD D3 2C             call DrawBoard       ; redraw all
+2030+  337C 18 EA                jr CSpcDragz        
+2031+  337E                      
+2032+  337E             CDragWas:
+2033+  337E 32 1B 2B             ld (Move_sq_f),a
+2034+  3381 3E 01                ld a,1
+2035+  3383 CD 4B 2A             call IsValidDragMove
+2036+  3386 F5                   push af
+2037+  3387 3E FF                ld a,$ff
+2038+  3389 32 5D 27             ld (DragSq),a
+2039+  338C F1                   pop af
+2040+  338D FE 00                cp 0
+2041+  338F 28 E8                jr z, CSpcTryDrag      ; if move not valid
+2042+  3391             
+2043+  3391 3A 5C 27             ld a,(CursorSq)
+2044+  3394 32 1C 2B             ld (Move_sq_t),a
+2045+  3397                      
+2046+  3397 CD B5 29             call Chess_Move_Cursor          ; this will set animation and do the move
+2047+  339A             CSpcOver:
+2048+  339A CD 70 32             call DrawCursor
+2049+  339D                      
+2050+  339D             #endif         
+2051+  339D F1                   pop af
+2052+  339E C9                   ret         
+2053+  339F                      
+2054+  339F             ;---------------------------------
+2055+  339F             ; If cursor arrow keys pressed
+2056+  339F             ;
+2057+  339F             IfCursorKeys:
+2058+  339F             
+2059+  339F F5                   push af     
+2060+  33A0 FE 1D                cp 29
+2061+  33A2 20 17                jr nz, CkeyIfCurs2
+2062+  33A4                                                ; LEFT pressed                                 
+2063+  33A4 3A 5C 27             ld a,(CursorSq)
+2064+  33A7 4F                   ld c,a                                   
+2065+  33A8 E6 07                and 7
+2066+  33AA FE 00                cp 0
+2067+  33AC 28 56                jr z,CkeyCKexit
+2068+  33AE 79                   ld a,c
+2069+  33AF CD EA 2C             call DrawSquare
+2070+  33B2 3D                   dec a
+2071+  33B3                      
+2072+  33B3             CKeyCursMv:
+2073+  33B3 32 5C 27             ld (CursorSq),a
+2074+  33B6 CD 70 32             call DrawCursor
+2075+  33B9 18 49                jr CkeyCKexit
+2076+  33BB             
+2077+  33BB             CkeyIfCurs2:  
+2078+  33BB FE 1C                cp 28
+2079+  33BD 20 11                jr nz, CkeyIfCurs3                                       
+2080+  33BF                                                ; RIGHT pressed                                      
+2081+  33BF 3A 5C 27             ld a,(CursorSq)
+2082+  33C2 4F                   ld c,a         
+2083+  33C3 E6 07                and 7
+2084+  33C5 FE 07                cp 7
+2085+  33C7 28 3B                jr z,CkeyCKexit
+2086+  33C9 79                   ld a,c
+2087+  33CA CD EA 2C             call DrawSquare
+2088+  33CD 3C                   inc a         
+2089+  33CE 18 E3                jr CKeyCursMv
+2090+  33D0             
+2091+  33D0                                                                                                                           
+2092+  33D0             CkeyIfCurs3:
+2093+  33D0 FE 1E                cp 30
+2094+  33D2 20 16                jr nz, CkeyIfCurs4                                       
+2095+  33D4                                                ; UP pressed                                   
+2096+  33D4 3A 5C 27             ld a,(CursorSq)
+2097+  33D7 4F                   ld c,a                                           
+2098+  33D8 CB 3F                srl a
+2099+  33DA CB 3F                srl a
+2100+  33DC CB 3F                srl a
+2101+  33DE FE 07                cp 7
+2102+  33E0 28 22                jr z,CkeyCKexit
+2103+  33E2 79                   ld a,c
+2104+  33E3 CD EA 2C             call DrawSquare
+2105+  33E6 C6 08                add a,8                 
+2106+  33E8 18 C9                jr CKeyCursMv
+2107+  33EA                                                 
+2108+  33EA             CkeyIfCurs4:
+2109+  33EA FE 1F                cp 31
+2110+  33EC 20 16                jr nz, CkeyCKexit                                      
+2111+  33EE                                                ; DOWN pressed                                   
+2112+  33EE 3A 5C 27             ld a,(CursorSq)
+2113+  33F1 4F                   ld c,a                                           
+2114+  33F2 CB 3F                srl a
+2115+  33F4 CB 3F                srl a
+2116+  33F6 CB 3F                srl a
+2117+  33F8 FE 00                cp 0
+2118+  33FA 28 08                jr z,CkeyCKexit
+2119+  33FC 79                   ld a,c
+2120+  33FD CD EA 2C             call DrawSquare
+2121+  3400 D6 08                sub 8        
+2122+  3402 18 AF                jr CKeyCursMv
+2123+  3404                      
+2124+  3404             CkeyCKexit:
+2125+  3404 F1                   pop af         
+2126+  3405 C9                   ret
+2127+  3406             
+2128+  3406             ;---------------------------------
+2129+  3406             ; If piece keys PNBRQK pressed
+2130+  3406             ;
+2131+  3406             IfPieceSetupKeys:
+2132+  3406 F5                   push af
+2133+  3407 C5                   push bc
+2134+  3408 D5                   push de
+2135+  3409 E5                   push hl
+2136+  340A 47                   ld b,a   ;save code
+2137+  340B FE 50                cp 'P'
+2138+  340D 28 32                jr z,CsetupWP
+2139+  340F FE 4E                cp 'N'
+2140+  3411 28 3B                jr z,CsetupWN
+2141+  3413 FE 42                cp 'B'
+2142+  3415 28 37                jr z,CsetupWB
+2143+  3417 FE 52                cp 'R'
+2144+  3419 28 33                jr z,CsetupWR
+2145+  341B FE 51                cp 'Q'
+2146+  341D 28 2F                jr z,CsetupWQ
+2147+  341F FE 4B                cp 'K'
+2148+  3421 28 2D                jr z,CsetupWK
+2149+  3423 FE 70                cp 'p'
+2150+  3425 28 1A                jr z,CsetupBP
+2151+  3427 FE 6E                cp 'n'
+2152+  3429 28 23                jr z,CsetupBN
+2153+  342B FE 62                cp 'b'
+2154+  342D 28 1F                jr z,CsetupBB
+2155+  342F FE 72                cp 'r'
+2156+  3431 28 1B                jr z,CsetupBR
+2157+  3433 FE 71                cp 'q'
+2158+  3435 28 17                jr z,CsetupBQ
+2159+  3437 FE 6B                cp 'k'
+2160+  3439 28 21                jr z,CsetupBK
+2161+  343B FE 20                cp ' '
+2162+  343D 28 2B                jr z,CsetupBlank
+2163+  343F 18 27                jr CsetupDoNothing
+2164+  3441             CsetupWP:
+2165+  3441             CsetupBP:
+2166+  3441 3A 5C 27             ld a,(CursorSq)
+2167+  3444 FE 08                cp 8
+2168+  3446 38 7C                jr c,CsetupKexit
+2169+  3448 FE 38                cp 56
+2170+  344A 30 78                jr nc,CsetupKexit
+2171+  344C 18 1E                jr Csetup2        
+2172+  344E             CsetupWN:
+2173+  344E             CsetupWB:
+2174+  344E             CsetupWR:
+2175+  344E             CsetupWQ:
+2176+  344E             CsetupBN:
+2177+  344E             CsetupBB:
+2178+  344E             CsetupBR:
+2179+  344E             CsetupBQ:
+2180+  344E 18 1C                jr Csetup2
+2181+  3450             CsetupWK:
+2182+  3450 3A 84 01             ld a,(WKSQ)
+2183+  3453 FE FF                cp $ff
+2184+  3455 28 03                jr z,Csu2WK
+2185+  3457 CD C9 34             call CsuKRmv    ; White king not here anymore
+2186+  345A 18 10       Csu2WK:  jr Csetup2
+2187+  345C             
+2188+  345C             
+2189+  345C             CsetupBK:
+2190+  345C 3A 85 01             ld a,(BKSQ)
+2191+  345F FE FF                cp $ff
+2192+  3461 28 03                jr z,Csu2BK
+2193+  3463 CD C9 34             call CsuKRmv    ; Black king not here anymore
+2194+  3466 18 04       Csu2BK:  jr Csetup2
+2195+  3468                      
+2196+  3468             CsetupDoNothing:
+2197+  3468 18 5A                jr CsetupKexit  ; exit
+2198+  346A             
+2199+  346A 06 00       CsetupBlank: ld b,0 ; will be empty square
+2200+  346C             
+2201+  346C             Csetup2:               ;puts new piece on board or clears square
+2202+  346C 3A 5C 27             ld a,(CursorSq)
+2203+  346F CD FF 2B             call ObtainHLboardBySq
+2204+  3472 4F                   ld c,a
+2205+  3473 3A 84 01             ld a,(WKSQ)
+2206+  3476 B9                   cp c
+2207+  3477 20 07                jr nz,CsuNoOverWK
+2208+  3479 3E FF                ld a,$ff
+2209+  347B 32 84 01             ld (WKSQ),a
+2210+  347E 18 0B                jr CsuOverK       
+2211+  3480             CsuNoOverWK:       
+2212+  3480 3A 85 01             ld a,(BKSQ)
+2213+  3483 B9                   cp c
+2214+  3484 20 05                jr nz,CsuOverK
+2215+  3486 3E FF                ld a,$ff
+2216+  3488 32 85 01             ld (BKSQ),a
+2217+  348B             
+2218+  348B             CsuOverK:     
+2219+  348B 78                   ld a,b
+2220+  348C FE 4B                cp 'K'
+2221+  348E 20 06                jr nz, CsuNoWKnwpos
+2222+  3490 79                   ld a,c
+2223+  3491 32 84 01             ld (WKSQ),a
+2224+  3494 18 08                jr CsuOverK2
+2225+  3496             CsuNoWKnwpos:
+2226+  3496 FE 6B                cp 'k'
+2227+  3498 20 04                jr nz, CsuOverK2
+2228+  349A 79                   ld a,c
+2229+  349B 32 85 01             ld (BKSQ),a
+2230+  349E             CsuOverK2:
+2231+  349E 78                   ld a,b
+2232+  349F 70                   ld (hl),b          ; new piece or empty square here
+2233+  34A0 FE 00                cp 0
+2234+  34A2 28 0D                jr z,CsuNSd
+2235+  34A4 FE 5A                cp 'Z'
+2236+  34A6 30 04                jr nc,CsetupBlackPc
+2237+  34A8 3E 00                ld a,0
+2238+  34AA 18 02                jr CsuSDm
+2239+  34AC             CsetupBlackPc:         
+2240+  34AC 3E 01                ld a,1
+2241+  34AE 32 81 01    CsuSDm:  ld (SIDE),a
+2242+  34B1 CD 7C 31    CsuNSd:  call PutToMove
+2243+  34B4 79                   ld a,c        
+2244+  34B5 CD EA 2C             call DrawSquare
+2245+  34B8 CD DB 34             call RecalcCastles ;what castlings are possible?
+2246+  34BB CD 70 32             call DrawCursor
+2247+  34BE 11 0A 29             ld de,wasSetUpFEN
+2248+  34C1 CD 68 1B             call GetFEN        ;keeps actual FEN for position
+2249+  34C4             CsetupKexit:
+2250+  34C4 E1                   pop hl         
+2251+  34C5 D1                   pop de
+2252+  34C6 C1                   pop bc
+2253+  34C7 F1                   pop af
+2254+  34C8 C9                   ret
+2255+  34C9             
+2256+  34C9             ; this is used for kings to remove them from board
+2257+  34C9 F5          CsuKRmv: push af
+2258+  34CA C5                   push bc
+2259+  34CB E5                   push hl
+2260+  34CC 4F                   ld c,a
+2261+  34CD CD FF 2B             call ObtainHLboardBySq
+2262+  34D0 3E 00                ld a,0
+2263+  34D2 77                   ld (hl),a
+2264+  34D3 79                   ld a,c
+2265+  34D4 CD EA 2C             call DrawSquare ; empty square now         
+2266+  34D7 E1                   pop hl
+2267+  34D8 C1                   pop bc
+2268+  34D9 F1                   pop af
+2269+  34DA C9                   ret
+2270+  34DB             ;
+2271+  34DB             ; this calculates maximum possible castling and sets flags
+2272+  34DB             ; otherwise movements may not work normally
+2273+  34DB             ; 
+2274+  34DB             RecalcCastles:
+2275+  34DB F5                   push af
+2276+  34DC F5                   push af
+2277+  34DD E5                   push hl
+2278+  34DE 06 00                ld b,0         ; new flags for castlings
+2279+  34E0 3A 84 01             ld a,(WKSQ)
+2280+  34E3 FE 04                cp 4
+2281+  34E5 20 18                jr nz,RclcBlack
+2282+  34E7 3E 07                ld a,7
+2283+  34E9 CD FF 2B             call ObtainHLboardBySq
+2284+  34EC 7E                   ld a,(hl)
+2285+  34ED FE 52                cp 'R'
+2286+  34EF 20 02                jr nz,RclnWr1
+2287+  34F1 CB C0                set 0,b
+2288+  34F3 3E 00       RclnWr1: ld a,0
+2289+  34F5 CD FF 2B             call ObtainHLboardBySq
+2290+  34F8 7E                   ld a,(hl)
+2291+  34F9 FE 52                cp 'R'
+2292+  34FB 20 02                jr nz,RclcBlack
+2293+  34FD CB C8                set 1,b
+2294+  34FF             RclcBlack:
+2295+  34FF 3A 85 01             ld a,(BKSQ)
+2296+  3502 FE 3C                cp 60
+2297+  3504 20 18                jr nz,RclcOver
+2298+  3506 3E 3F                ld a,63
+2299+  3508 CD FF 2B             call ObtainHLboardBySq
+2300+  350B 7E                   ld a,(hl)
+2301+  350C FE 72                cp 'r'
+2302+  350E 20 02                jr nz,RclnBr1
+2303+  3510 CB D0                set 2,b
+2304+  3512 3E 38       RclnBr1: ld a,56
+2305+  3514 CD FF 2B             call ObtainHLboardBySq
+2306+  3517 7E                   ld a,(hl)
+2307+  3518 FE 72                cp 'r'
+2308+  351A 20 02                jr nz,RclcOver
+2309+  351C CB D8                set 3,b
+2310+  351E             RclcOver:
+2311+  351E 78                   ld a,b
+2312+  351F 32 82 01             ld (CASTLES),a
+2313+  3522 E1                   pop hl
+2314+  3523 C1                   pop bc
+2315+  3524 F1                   pop af
+2316+  3525 C9                   ret                                                                                                                                                      
+2317+  3526             
+2318+  3526             
+2319+  3526             ;---------------------------------
+2320+  3526             ; Redraw squares around.
+2321+  3526             ; Intended for large cursor
+2322+  3526             ; Not used, as DrawCursor does the same.
+2323+  3526             ;---------------------------------
+2324+  3526 2D 09 2D 08 _AsqDirc: .byte '-',9,'-',8,'-',7,'-',1,'=',0,'+',1,'+',7,'+',8,'+',9
+2324+  352A 2D 07 2D 01 
+2324+  352E 3D 00 2B 01 
+2324+  3532 2B 07 2B 08 
+2324+  3536 2B 09 
+2325+  3538             
+2326+  3538             RedrawSquaresAround:
+2327+  3538             
+2328+  3538 F5                   push af
+2329+  3539 C5                   push bc
+2330+  353A D5                   push de
+2331+  353B E5                   push hl
+2332+  353C 21 26 35             ld hl,_AsqDirc
+2333+  353F 06 09                ld b,9
+2334+  3541 4F                   ld c,a
+2335+  3542             ArndSqScan
+2336+  3542 7E                   ld a,(hl)
+2337+  3543 23                   inc hl
+2338+  3544 FE 2D                cp '-'
+2339+  3546 28 08                jr z,ArndSqDec
+2340+  3548 7E                   ld a,(hl)
+2341+  3549 81                   add a,c
+2342+  354A FE 3F                cp 63
+2343+  354C 38 0A                jr c,ArndSqNo
+2344+  354E 18 05                jr ArndSqYes                 
+2345+  3550             ArndSqDec:         
+2346+  3550 56                   ld d,(hl)
+2347+  3551 79                   ld a,c
+2348+  3552 92                   sub d
+2349+  3553 38 03                jr c,ArndSqNo
+2350+  3555             ArndSqYes:         
+2351+  3555 CD EA 2C             call DrawSquare   ; if square on board then redraw
+2352+  3558             ArndSqNo:
+2353+  3558 79                   ld a,c
+2354+  3559 23                   inc hl
+2355+  355A 10 E6                djnz ArndSqScan
+2356+  355C E1                   pop hl
+2357+  355D D1                   pop de
+2358+  355E C1                   pop bc
+2359+  355F F1                   pop af
+2360+  3560 C9                   ret
+2361+  3561             
+2362+  3561                      
+2363+  3561             ;-----------------------------------------------------------
+2364+  3561             ;
+2365+  3561             ; Process replay of one move
+2366+  3561             ;
+2367+  3561             ;-----------------------------------------------------------
+2368+  3561             DO_Replay_Move:
+2369+  3561 F5                   push af
+2370+  3562 C5                   push bc
+2371+  3563 D5                   push de
+2372+  3564 E5                   push hl
+2373+  3565                               
+2374+  3565 11 68 07             ld de, MOVE_str
+2375+  3568 3A 5E 27             ld a,(RplyMs)
+2376+  356B 47                   ld b,a
+2377+  356C FE 00                cp 0
+2378+  356E 28 1A                jr z,RplyTo0
+2379+  3570             RplyLoopMv:
+2380+  3570 13                   inc de
+2381+  3571 13                   inc de
+2382+  3572 13                   inc de
+2383+  3573 13                   inc de
+2384+  3574 1A                   ld a,(de)
+2385+  3575 FE 20                cp 32
+2386+  3577 28 01                jr z,RplyNskp1
+2387+  3579 13                   inc de          ;skip promotion
+2388+  357A             RplyNskp1:
+2389+  357A 13                   inc de         
+2390+  357B 1A                   ld a,(de)
+2391+  357C FE 20                cp 32
+2392+  357E 28 1D                jr z,RplyNoMv
+2393+  3580 FE 00                cp 0
+2394+  3582 28 19                jr z,RplyNoMv
+2395+  3584 FE 24                cp '$'
+2396+  3586 28 15                jr z,RplyNoMv
+2397+  3588             
+2398+  3588 10 E6                djnz RplyLoopMv
+2399+  358A             RplyTo0:
+2400+  358A CD A4 12             call MbyStrMove           ; move
+2401+  358D CD D3 2C             call DrawBoard            ; no animation, sorry
+2402+  3590 CD 7C 31             call PutToMove
+2403+  3593 CD 04 13             call GenMoves             ; use GenMovesAndString to see
+2404+  3596                      
+2405+  3596 3A 5E 27             ld a,(RplyMs)
+2406+  3599 3C                   inc a
+2407+  359A 32 5E 27             ld (RplyMs),a
+2408+  359D             RplyNoMv:
+2409+  359D E1                   pop hl       
+2410+  359E D1                   pop de
+2411+  359F C1                   pop bc
+2412+  35A0 F1                   pop af
+2413+  35A1 C9                   ret
+2414+  35A2             
+2415+  35A2                     
+2416+  35A2             DO_Replay_UnmakeMove:
+2417+  35A2 F5                   push af
+2418+  35A3 3A 5E 27             ld a,(RplyMs)
+2419+  35A6 FE 00                cp 0
+2420+  35A8 28 13                jr z,RplyUMKret
+2421+  35AA CD 3E 25             call UnMakeMove
+2422+  35AD CD D3 2C             call DrawBoard            ; no animation, sorry
+2423+  35B0 CD 7C 31             call PutToMove
+2424+  35B3 CD 04 13             call GenMoves
+2425+  35B6 3A 5E 27             ld a,(RplyMs)
+2426+  35B9 3D                   dec a
+2427+  35BA 32 5E 27             ld (RplyMs),a
+2428+  35BD             RplyUMKret:
+2429+  35BD F1                   pop af
+2430+  35BE C9                   ret
+2431+  35BF                               
+2432+  35BF             
+2433+  35BF 00          Loaded2VRAM: .byte 0       ; pre-loading of datas from file just once,
+2434+  35C0                                        ; after the VRAM memory could be used only.
+2435+  35C0                                        
+2436+  35C0             Chess_GraphDatas_address:   .equ $8000         ; address where to load module
+2437+  35C0             
+2438+  35C0             Chess_GraphDatas_filename:
+2439+  35C0 00 43 48 45            .byte 0, "CHESSPI CO2",0            ; name of file
+2439+  35C4 53 53 50 49 
+2439+  35C8 20 43 4F 32 
+2439+  35CC 00 
+2440+  35CD             
+2441+  35CD             ChessY2K_GraphDatas_load:
+2442+  35CD F5                      push af
+2443+  35CE 3A BF 35                ld a,(Loaded2VRAM)
+2444+  35D1                         
+2445+  35D1 FE 00                   cp 0
+2446+  35D3 20 12                   jr nz,GraphDatas_ok
+2447+  35D5             
+2448+  35D5 E5                      push hl
+2449+  35D6 D5                      push de
+2450+  35D7 21 C0 35                ld hl,Chess_GraphDatas_filename
+2451+  35DA 11 00 80                ld de,Chess_GraphDatas_address
+2452+  35DD CD 2E 3C                call diskload                     ; loads datas
+2453+  35E0 D1                      pop de
+2454+  35E1 E1                      pop hl
+2455+  35E2                         
+2456+  35E2 3E 01                   ld a,1
+2457+  35E4 32 BF 35                ld (Loaded2VRAM),a                ; VRAM ok
+2458+  35E7             GraphDatas_ok:
+2459+  35E7 F1                      pop af
+2460+  35E8 C9                      ret
+2461+  35E9             
+2462+  35E9                         ;                                                                               
+2463+  35E9                         ; Data files for pieces Colour of piece (B or W) 
+2464+  35E9                         ;   + Name of piece ("KQRBNP" or empty square)
+2465+  35E9                         ;   + colour of square under (read black bishop on black square)
+2466+  35E9             
+2467+  35E9             tbPalettes:
+2468+  35E9                         ;table of colours Nr,R,G,B
+2469+  35E9                         ;  thanks to bmp2msx software (http://www.imasy.or.jp/~hra/)
+2470+  35E9 00 06 06 05         .byte $0,6,6,5
+2471+  35ED 01 05 03 02         .byte $1,5,3,2
+2472+  35F1 02 00 00 00         .byte $2,0,0,0
+2473+  35F5 03 07 07 06         .byte $3,7,7,6
+2474+  35F9 04 05 04 03         .byte $4,5,4,3
+2475+  35FD 05 05 05 05         .byte $5,5,5,5
+2476+  3601 06 06 06 06         .byte $6,6,6,6
+2477+  3605 07 03 02 02         .byte $7,3,2,2
+2478+  3609 08 03 03 03         .byte $8,3,3,3
+2479+  360D 09 06 05 04         .byte $9,6,5,4
+2480+  3611 0A 04 04 03         .byte $A,4,4,3
+2481+  3615 0B 01 01 01         .byte $B,1,1,1
+2482+  3619 0C 02 01 01         .byte $C,2,1,1
+2483+  361D 0D 06 05 06         .byte $D,6,5,6
+2484+  3621 0E 01 01 02         .byte $E,1,1,2
+2485+  3625 0F 01 02 01         .byte $F,1,2,1
+2486+  3629                     3695   3629                       #include "ChessMN.ASM"     ; MENU choices
 0001+  3629             ;=======================================
 0002+  3629             ;
 0003+  3629             ; MAIN loop and MENU for ChessY2K

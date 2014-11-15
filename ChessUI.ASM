@@ -1946,9 +1946,18 @@ CkeyIfEnter:
           ;and process other key controls
                                   
          call IfCursorKeys       ; process if cursor key has been pressed
+
 CKeyPsetup:
-         call IfPieceSetupKeys   ; process if setup of pieces key has been pressed
+
+#ifdef PGN_COMPILE
+
+         nop
+         nop
+         nop
+#else
          
+         call IfPieceSetupKeys   ; process if setup of pieces key has been pressed
+#endif
  
          cp 'u'             ; If U was pressed, try undomove
          jr nz, CkeyIf_u
