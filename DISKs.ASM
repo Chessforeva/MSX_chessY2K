@@ -37,10 +37,10 @@
 ;
 ;
 ; Usage3:
-;        ld hl,willcard_
+;        ld hl,wildcard_
 ;        ld de,$2000
 ;        call dirload 
-;willcard_:
+;wildcard_:
 ;        .byte 0,"??????? COM",0  ;
 ;     
 ;    
@@ -149,7 +149,7 @@ rd_opn: .byte 0
      
 ;
 ; searches directory files
-;   that match hl willcard
+;   that match hl wildcard
 ;   and stores result in address de
 ;
 ; separator ","

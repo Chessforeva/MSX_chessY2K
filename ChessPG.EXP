@@ -951,10 +951,10 @@
 0037+  84B9             ;
 0038+  84B9             ;
 0039+  84B9             ; Usage3:
-0040+  84B9             ;        ld hl,willcard_
+0040+  84B9             ;        ld hl,wildcard_
 0041+  84B9             ;        ld de,$2000
 0042+  84B9             ;        call dirload 
-0043+  84B9             ;willcard_:
+0043+  84B9             ;wildcard_:
 0044+  84B9             ;        .byte 0,"??????? COM",0  ;
 0045+  84B9             ;     
 0046+  84B9             ;    
@@ -1063,7 +1063,7 @@
 0149+  853E                  
 0150+  853E             ;
 0151+  853E             ; searches directory files
-0152+  853E             ;   that match hl willcard
+0152+  853E             ;   that match hl wildcard
 0153+  853E             ;   and stores result in address de
 0154+  853E             ;
 0155+  853E             ; separator ","
@@ -2411,7 +2411,7 @@
 0410   8C3D             DirOfPGNs: .ds 12*40
 0411   8E1D             
 0412   8E1D             filesPGN:
-0413   8E1D 00 3F 3F 3F         .byte 0,"??????? PGN",0        ; willcard for pgn-files to search in disk
+0413   8E1D 00 3F 3F 3F         .byte 0,"??????? PGN",0        ; wildcard for pgn-files to search in disk
 0413   8E21 3F 3F 3F 3F 
 0413   8E25 20 50 47 4E 
 0413   8E29 00 

@@ -410,7 +410,7 @@ FDir_:       .byte 0      ; 1-to read list of files just once
 DirOfPGNs: .ds 12*40
 
 filesPGN:
-        .byte 0,"??????? PGN",0        ; willcard for pgn-files to search in disk
+        .byte 0,"??????? PGN",0        ; wildcard for pgn-files to search in disk
 
 ;
 ; Can not use diskload for larger files. So, we read 3 times per 255 bytes
