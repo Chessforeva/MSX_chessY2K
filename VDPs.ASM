@@ -576,7 +576,7 @@ VDPready:
         ld   a,128+15
         out  ($99),a
         in   a,($99)
-	and  1
+	bit  0,a
 	jr   nz, VDPready	; wait
         rra
         ld   a,0

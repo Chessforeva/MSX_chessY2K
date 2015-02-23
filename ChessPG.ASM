@@ -59,7 +59,6 @@ UnMakeMove       .EQU  $253e
 WKSQ             .EQU  $0184
 printBOARD       .EQU  $1cbb
 startFEN         .EQU  $0107
-
                             
                                     
 start_PG_Module:
