@@ -1374,7 +1374,7 @@
 0135+  86BB F1                   pop  af 
 0136+  86BC C9                   ret
 0137+  86BD                      
-0138+  86BD             SetBackgrColor:               ; Sets background color by A=Nr.              
+0138+  86BD             SetBorderColor:               ; Sets background color by A=Nr.              
 0139+  86BD F3                   di
 0140+  86BE D3 99                out  ($99),a        ; a=[0..15]
 0141+  86C0 3E 87                ld   a,128+7

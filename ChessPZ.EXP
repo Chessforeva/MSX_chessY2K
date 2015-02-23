@@ -4389,7 +4389,7 @@
 0184+  28A8 E5                   push hl
 0185+  28A9                      
 0186+  28A9 3E 00                ld a,0
-0187+  28AB CD 5C 38             call SetBackgrColor       ; sets color by number
+0187+  28AB CD 5C 38             call SetBorderColor       ; sets color by number
 0188+  28AE 3E 00                ld a,0
 0189+  28B0 CD 5E 39             call SetPage              ; Page to display
 0190+  28B3                               
@@ -7192,7 +7192,7 @@
 0135+  385A F1                   pop  af 
 0136+  385B C9                   ret
 0137+  385C                      
-0138+  385C             SetBackgrColor:               ; Sets background color by A=Nr.              
+0138+  385C             SetBorderColor:               ; Sets background color by A=Nr.              
 0139+  385C F3                   di
 0140+  385D D3 99                out  ($99),a        ; a=[0..15]
 0141+  385F 3E 87                ld   a,128+7

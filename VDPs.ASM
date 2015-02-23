@@ -135,7 +135,7 @@ SPcoLoop:
          pop  af 
          ret
          
-SetBackgrColor:               ; Sets background color by A=Nr.              
+SetBorderColor:               ; Sets border colour by A=Nr.              
          di
          out  ($99),a        ; a=[0..15]
          ld   a,128+7
@@ -576,6 +576,8 @@ VDPready:
         ld   a,128+15
         out  ($99),a
         in   a,($99)
+	and  1
+	jr   nz, VDPready	; wait
         rra
         ld   a,0
         out  ($99),a

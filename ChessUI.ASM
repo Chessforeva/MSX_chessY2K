@@ -184,7 +184,7 @@ SetGraphics0:
          push hl
          
          ld a,0
-         call SetBackgrColor       ; sets color by number
+         call SetBorderColor       ; sets color by number
          ld a,0
          call SetPage              ; Page to display
                   
