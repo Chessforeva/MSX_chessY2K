@@ -311,19 +311,20 @@ v9958_Check:  di                       ;Test for v9958
 ;
 ;-----------------------------------------
 
-VDP: .word  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+VDP:   .word  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+VDP_0: .word  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 ;
 ;Copy the VDP-registers' settings to array VDP.
 ;Afterwards, read the VDP-registers with LD A,(VDP + r)
 ;(this should be placed at the start of a program)
 ;
-Copy_VdpRegs: ld      hl,VDP+0
-              ld      de,VDP+0
+Copy_VdpRegs: ld      hl,VDP+0		; doing nothing here
+              ld      de,VDP_0+0	; actually should provide other VDP block
               ld      bc,8
               ldir
               ld      hl,VDP+8
-              ld      de,VDP+8
+              ld      de,VDP_0+8
               ld      bc,17
               ldir
               ret
@@ -334,10 +335,10 @@ Copy_VdpRegs: ld      hl,VDP+0
 ;(this should be placed at the end of a program)
 ;
 Rest_VdpRegs: ld      bc,$0800
-              ld      hl,VDP+0
+              ld      hl,VDP_0+0
               call    Rest_VdpSub
               ld      bc,$1008
-              ld      hl,VDP+8
+              ld      hl,VDP_0+8
               call    Rest_VdpSub
               ld      bc,$0319
               ld      hl,Vdp3zero    ;a jp Restore_Vdp_Sub is implied

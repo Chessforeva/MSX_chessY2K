@@ -1,2 +1,0 @@
-TASM -80 -b ChessY2K.ASM DSK\ChessY2K.COM ChessY2K.EXP
-PAUSE

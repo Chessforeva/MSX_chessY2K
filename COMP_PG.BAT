@@ -1,2 +1,0 @@
-TASM -80 -b ChessPG.ASM DSK\ChessPG.CO2 ChessPG.EXP
-PAUSE

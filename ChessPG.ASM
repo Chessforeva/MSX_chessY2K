@@ -12,53 +12,13 @@
             .org $8000
 ;
 ; Defines labels to access chess logic.
-; This was genereated by "export" operator of tasm
-; in ChessY2K.ASM
-; REPLACE THESE AFTER EACH RECOMPILE OF CHESSY2K.COM
 ;
-BOARD            .EQU  $0140
-BKSQ             .EQU  $0185
-BoardOut         .EQU  $1c69
-CASTLES          .EQU  $0182
-CaptPiece        .EQU  $1903
-CastlMove        .EQU  $1905
-DEC_I            .EQU  $2722
-DEBUGs           .EQU  $274b
-ENPSQ            .EQU  $0183
-GenMovesAndString .EQU  $1280
-GenMoves         .EQU  $1304
-GetFEN           .EQU  $1b68
-IsEmpty          .EQU  $18af
-IsOccupied       .EQU  $18ba
-IsWhite          .EQU  $18c5
-IsBlack          .EQU  $18e4
-IsCheck          .EQU  $1d2e
-LD_Ix            .EQU  $2719
-MOVE_CNT         .EQU  $0367
-MOVE_HIST        .EQU  $0368
-MOVE_str         .EQU  $0768
-MOVE_byString    .EQU  $1287
-MbyStrMove       .EQU  $12a4
-MovesToStr       .EQU  $19ba
-MovesOut         .EQU  $1a9b
-MakeMove         .EQU  $2167
-NEXT_MVCNT       .EQU  $0186
-NEXT_MOVES       .EQU  $0187
-NEXT_MVSTR       .EQU  $0fa8
-PromoPcId        .EQU  $1904
-SIDE             .EQU  $0181
-SQi              .EQU  $1301
-SQt              .EQU  $1302
-SetFEN           .EQU  $1aa4
-ScanSqC          .EQU  $1cea
-SetSqScan        .EQU  $1ceb
-ScanSqNxt        .EQU  $1cf4
-Swap_Sides       .EQU  $22ca
-UndoAllMoves     .EQU  $12f2
-UnMakeMove       .EQU  $253e
-WKSQ             .EQU  $0184
-printBOARD       .EQU  $1cbb
-startFEN         .EQU  $0107
+
+
+; global labels, genereated by "export"
+; operator of tasm in ChessY2K.ASM
+
+#include "ChessY2K.EXP"
                             
                                     
 start_PG_Module:
@@ -2265,4 +2225,5 @@ DspWtEx:
          ret
                    
 end_PG_Module:          
-.end          
+.end
+       

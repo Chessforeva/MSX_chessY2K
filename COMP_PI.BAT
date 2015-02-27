@@ -1,2 +1,0 @@
-TASM -80 -b ChessPI.ASM DSK\ChessPI.CO2 ChessPI.EXP
-PAUSE

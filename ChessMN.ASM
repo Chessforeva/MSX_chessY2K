@@ -32,6 +32,8 @@ ItemNo0:
          ld (Stylo),a 
 
          call GraphicsS         ; user interface for chess program
+
+         ;jr EXIT_ALL		; can not continue
          
          ld a,0
          ld (Stylo),a
@@ -95,16 +97,21 @@ MainMenu:
 #endif            
             ld (_menuI),a
             
-            call InkeyKeyBy30h      ; keypress detect
-            ld (_keymnbf),a         ; saves last key
+            ld a,27
+            ld (_keymnbf),a         ; saves ESC as last key
                         
 MENULOOP:                           ; Loop till ESC pressed
             call DrawChoices
             call InkeyKeyBy30h      ; keypress detect
-            
-            ;cp 27
-            ;jr z,EscEXIT
-            
+
+            cp 27
+            jr nz,noESCk
+            ld a,(_keymnbf)
+            cp 27
+            jr nz,EscEXIT           ; Exit to MSXDOS
+            ld a,0
+
+noESCk:            
             call MenuKeyPress       ; Selection or other item
             jr Menu2loop
 

@@ -14,57 +14,11 @@
 
 ;
 ; Defines labels to access datas after loading.
-; This was genereated by "export" operator of tasm
-; in ChessPI.ASM
-; REPLACE THESE AFTER EACH RECOMPILE OF CHESSPI
 
-dtBBB            .EQU  $8001
-dtBBW            .EQU  $8159
-dtBKB            .EQU  $82b1
-dtBKW            .EQU  $8409
-dtBNB            .EQU  $8561
-dtBNW            .EQU  $86b9
-dtBPB            .EQU  $8811
-dtBPW            .EQU  $8969
-dtBQB            .EQU  $8ac1
-dtBQW            .EQU  $8c19
-dtBRB            .EQU  $8d71
-dtBRW            .EQU  $8ec9
-dtWBB            .EQU  $9021
-dtWBW            .EQU  $9179
-dtWKB            .EQU  $92d1
-dtWKW            .EQU  $9429
-dtWNB            .EQU  $9581
-dtWNW            .EQU  $96d9
-dtWPB            .EQU  $9831
-dtWPW            .EQU  $9989
-dtWQB            .EQU  $9ae1
-dtWQW            .EQU  $9c39
-dtWRB            .EQU  $9d91
-dtWRW            .EQU  $9ee9
-dtSQB            .EQU  $a041
-dtSQW            .EQU  $a199
-dtFRDN           .EQU  $a2f1
-dtFRLF           .EQU  $a63f
-dtFRRT           .EQU  $a98d
-dtFRUP           .EQU  $acdb
-dtWhiteToMove    .EQU  $b029
-dtWhiteNotToMove .EQU  $b091
-dtBlackToMove    .EQU  $b0f9
-dtBlackNotToMove .EQU  $b161
-dtWP             .EQU  $b1c9
-dtBP             .EQU  $b321
-dtWN             .EQU  $b479
-dtBN             .EQU  $b5d1
-dtWB             .EQU  $b729
-dtBB             .EQU  $b881
-dtWR             .EQU  $b9d9
-dtBR             .EQU  $bb31
-dtWQ             .EQU  $bc89
-dtBQ             .EQU  $bde3
-dtWK             .EQU  $bf3b
-dtBK             .EQU  $c093
-dtMSXlogo        .EQU  $c1eb
+; global labels, genereated by "export"
+; operator of tasm in ChessPI.ASM
+
+#include "ChessPI.EXP"
 
 
 Stylo:    .byte 0   ; set as configuration flags:
@@ -107,6 +61,9 @@ VRAMcpMskXY:  .word 0,0,0,0,0,0,0,0,0,0,0,0
 CircIX: .word dtWhiteToMove+6, dtBlackNotToMove+6, dtWhiteNotToMove+6, dtBlackToMove+6
                                                                                                                                                                                                        
 GraphicsS:
+         ld a,0
+         ld (Loaded2VRAM),a                ; should load to VRAM 
+
          
          ; loads datas of graphics in memory from file
          call ChessY2K_GraphDatas_load
@@ -1885,6 +1842,8 @@ CursRectDraw:               ; rectangle with length provided in c, color in b
 ; Can't go twice (avoid fast emulator speed)
 ;
 
+	.byte "KEYDEBUG"
+
 PreKeyWas:  .byte 0
 
 Cursor_Key_Controls:
@@ -1922,15 +1881,11 @@ CkeyNormal:
          
 CkeyWhatKeyCode:
          cp 27
-         jr nz, CkeyIf_space
-         
-#ifdef PGN_COMPILE
-        ; no exit because too heavy memory usage to continue after
-#else       
+         jr nz, CkeyIf_space      
          
          ld a,1                     ; Exit on ESC
          ld (Grph_Exit),a
-#endif         
+     
          jr CkeyNo
                   
 CkeyIf_space:                  
