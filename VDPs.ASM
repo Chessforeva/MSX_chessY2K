@@ -340,8 +340,14 @@ Rest_VdpRegs: ld      bc,$0800
               ld      bc,$1008
               ld      hl,VDP_0+8
               call    Rest_VdpSub
-              ld      bc,$0319
-              ld      hl,Vdp3zero    ;a jp Restore_Vdp_Sub is implied
+
+	; not sure, hangs sometimes on R#19h
+	; Register 19h: 9958 ONLY -- Horizontal Scroll Control
+        ;      ld      bc,$0319
+        ;      ld      hl,Vdp3zero    ;a jp Restore_Vdp_Sub is implied
+        ;      call    Rest_VdpSub
+
+              ret
 Rest_VdpSub:  ld      a,(hl)
               inc     hl
               di
