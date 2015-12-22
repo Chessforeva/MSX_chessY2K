@@ -13,7 +13,9 @@ Put PGN files in DSK folder (file name 7chars).
 Modify DSK/autoexec.bat to start other module ChessPZ.COM to
 set positions.
 
-Assembler is source is for TASM (Z80 8-bit).
+Assembler source is for TASM (Z80 8-bit). 
+Z80 processor has alternate registers inside (EX AF,AF') almost unused here.
+Too much stack push-pop usage.
 
 Heavy MSX VRAM usage.
 No chess playing AI, because it's too weak for chess computing.
