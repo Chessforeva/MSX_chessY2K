@@ -344,7 +344,7 @@ GenMVexit:
            
          ld hl,BOARD               ; save upper board
          ld de,BO_save
-         ld bc,64
+         ld bc,64+5
          ldir
          xor a
 GenOvSv:
@@ -360,12 +360,12 @@ GenOvSv:
                                     ; restore board
          ld hl,BO_save
          ld de,BOARD
-         ld bc,64
+         ld bc,64+5
          ldir
          jr GenOvRs
 
 BO_svf  .byte 0
-BO_save .ds 64
+BO_save .ds 64+5
 
 GenOvRs:
 
