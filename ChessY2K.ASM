@@ -119,7 +119,8 @@ GenMovesAndString:
             call GenMoves            
             call MovesToStr    ; to print after 
             ret
-                                    
+            
+                                
 ;BEGIN of ========== MAKE MOVES BY UCI-MOVE-STRING          
 ; use UndoAllMoves before or setFEN
 ;
@@ -334,8 +335,41 @@ GenMVscn:
          jr nz, GenMvSqScan
 GenMVexit:
 
+#ifdef PGN_COMPILE
+
+            ; save board before heavy movements
+         ld a,(BO_svf)
+         or a
+         jr nz,GenOvSv
+           
+         ld hl,BOARD               ; save upper board
+         ld de,BO_save
+         ld bc,64
+         ldir
+         xor a
+GenOvSv:
+         inc a
+         ld (BO_svf),a
+
          call LookForCheckmates   ; verifies checkmates
-                                     
+
+         ld a,(BO_svf)
+         dec a
+         ld (BO_svf),a
+         jr nz,GenOvRs
+                                    ; restore board
+         ld hl,BO_save
+         ld de,BOARD
+         ld bc,64
+         ldir
+         jr GenOvRs
+
+BO_svf  .byte 0
+BO_save .ds 64
+
+GenOvRs:
+
+#endif                              
          pop iy
          pop ix
          pop hl
@@ -343,6 +377,7 @@ GenMVexit:
          pop bc
          pop af
          ret
+         
 
                   
 ; helping procedure to obtain current X,Y on board and store to d,e regs.
