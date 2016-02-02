@@ -9,8 +9,7 @@
 ;     TASM -80 -b ChessPI.ASM ChessPI.co2
 ;  Then run ChessY2K.com on MSX-DOS1
 ;
-; Date: sep.,oct. 2012
-;  updated nov.2014
+; Date: sep.,oct. 2012, last.upd.02.02.2016  - safe MoveGen CkMt verif.
 ;
 ;Performance testing: 256 movement generations per minute on MSX machine -
 ;                        not enaugh for chess but ok for pgn-viewer project.
@@ -22,10 +21,12 @@
 ; It can not be done in one .COM unfortunately - causes too much memory usage.
 ; ChessPZ.COM is a compilation with no PGN version.
 ;
+; Actually memory ~0x4300-0x8000 is free and usable.
+;
 
          .org $100      
                       
-startProgram:
+aa_startProgram:
          call ChessMN     ; process menu
                           ; chess logic is in this file
         
@@ -93,7 +94,7 @@ MOVE_str: .byte "                                                               
           ;above 2Kb of moves
 
 ;
-; variables and arrays for next movement generation
+; variables and arrays for next possible chess movements
 ; (for printing and displaying)          
 NEXT_MVSTR: .byte "                                                    "
             .byte "                                                    "
@@ -335,41 +336,8 @@ GenMVscn:
          jr nz, GenMvSqScan
 GenMVexit:
 
-#ifdef PGN_COMPILE
-
-            ; save board before heavy movements
-         ld a,(BO_svf)
-         or a
-         jr nz,GenOvSv
-           
-         ld hl,BOARD               ; save upper board
-         ld de,BO_save
-         ld bc,64+5
-         ldir
-         xor a
-GenOvSv:
-         inc a
-         ld (BO_svf),a
-
-         call LookForCheckmates   ; verifies checkmates
-
-         ld a,(BO_svf)
-         dec a
-         ld (BO_svf),a
-         jr nz,GenOvRs
-                                    ; restore board
-         ld hl,BO_save
-         ld de,BOARD
-         ld bc,64+5
-         ldir
-         jr GenOvRs
-
-BO_svf  .byte 0
-BO_save .ds 64+5
-
-GenOvRs:
-
-#endif                              
+         call LookCheckmates
+                           
          pop iy
          pop ix
          pop hl
@@ -379,6 +347,7 @@ GenOvRs:
          ret
          
 
+  
                   
 ; helping procedure to obtain current X,Y on board and store to d,e regs.
 StoreXYtoDE:
@@ -3668,6 +3637,8 @@ CKMEnd:
 
 
 
+;#endif 
+
                    
 ;BEGIN of ========== COUNTER for large loop of 65536 maximum value
 ;
@@ -3736,9 +3707,51 @@ DEBUGs:
 
 JMP_0000: .equ $F3EF         ;good exit to DOS prompt for sure 
                     
+;------ MoveGen update 02.02.2016
+; 1. saves board
+; 2. iterates for checkmate cases
+; 3. restores board (safe MoveGen)
+LookCheckmates:
+
+            ; save board before heavy movements
+         ld a,(BO_svf)
+         or a
+         jr nz,GenOvSv
+           
+         ld hl,BOARD            ; save upper board only
+         ld de,BO_save
+         ld bc,64+5
+         ldir
+
+GenOvSv:
+         inc a
+         ld (BO_svf),a
+
+         call LookForCheckmates   ; verifies checkmates
+         
+         ld a,(BO_svf)
+         dec a
+         ld (BO_svf),a
+         jr nz,GenOvRs
+                                    
+         ld hl,BO_save
+         ld de,BOARD
+         ld bc,64+5
+         ldir               ; restore board
+GenOvRs:
+         ret
+
+BO_svf  .byte 0     ; if 0 then top
+BO_save .ds 64+5    ; BOARD, SIDE, CASTLES, ENPSQ, WKSQ, BKSQ
+
+;---
+
+zz_ChessY2K_End:
+
 ; Exporting addresses to include them in other modules 
 ;      (recognises as labels)
-          
+
+         .export aa_startProgram
          .export startFEN
          .export MOVE_str
          .export BOARD
@@ -3782,8 +3795,7 @@ JMP_0000: .equ $F3EF         ;good exit to DOS prompt for sure
          .export DEBUGs
          .export LD_Ix
          .export DEC_I
+         .export zz_ChessY2K_End
          
 endProgram:
 .end
-
-

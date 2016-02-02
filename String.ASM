@@ -528,6 +528,53 @@ Str_CharsO_Ex:
 
 ;
 ; places value of integer in reg-a into DE string
+; (hexadecimal)
+Str_itoa_hex:
+         
+         push af
+         push bc
+         ld b,a
+         
+         inc de
+         inc de
+         xor a          ; ends with 0
+         ld (de),a
+         dec de
+         
+          ; second char
+         ld a,b
+         and $f
+         cp 10
+         jr nc,Str_i2h1
+         add a,'0'
+         jr Str_i2h2
+Str_i2h1:
+         add a,'7'    ; 55 + code >= 65 that is code of "A"-"F"
+Str_i2h2:
+         ld (de),a
+         dec de
+
+          ; first char
+         ld a,b          
+         and $f0
+         rra
+         rra
+         rra
+         rra
+         cp 10
+         jr nc,Str_i2h3
+         add a,'0'
+         jr Str_i2h4
+Str_i2h3:
+         add a,'7'    ; 55 + code >= 65 that is code of "A"-"F"
+Str_i2h4:
+         ld (de),a
+         pop bc     
+         pop af
+         ret
+
+;
+; places value of integer in reg-a into DE string
 ;
 Str_itoa:
          push af

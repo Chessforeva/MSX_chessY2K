@@ -18,6 +18,7 @@ GraphicsData:
           #include "PicDat0.ASM"    ; MASKS for pieces white and black
                                     ; with transparent background         
 
+zz_ChessPI_End:
 
 ; Exporting addresses to include them in main module 
 ;      (recognises as labels)
@@ -78,5 +79,6 @@ GraphicsData:
               .export dtWhiteNotToMove
               .export dtBlackToMove
               .export dtBlackNotToMove
-
+              
+              .export zz_ChessPI_End
 .end

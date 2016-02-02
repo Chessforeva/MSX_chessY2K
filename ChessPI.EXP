@@ -92,3 +92,5 @@ dtBK             .EQU  $c093
 
 dtMSXlogo        .EQU  $c1eb
 
+zz_ChessPI_End   .EQU  $c2a5
+

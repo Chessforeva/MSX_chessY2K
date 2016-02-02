@@ -2223,7 +2223,9 @@ DspWtOutp:
 DspWtEx:
          pop de
          ret
-                   
-end_PG_Module:          
+
+zz_ChessPG_End:
+         .export start_PG_Module
+         .export zz_ChessPG_End
 .end
        
