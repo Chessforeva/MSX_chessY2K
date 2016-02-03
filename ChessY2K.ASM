@@ -239,6 +239,8 @@ GenMoves:
          push hl
          push ix
          push iy
+         
+         call BOsave
                   
          ld a,0    
          ld (CastlMove),a
@@ -336,7 +338,9 @@ GenMVscn:
          jr nz, GenMvSqScan
 GenMVexit:
 
-         call LookCheckmates
+         call LookForCheckmates   ; verifies checkmates
+         
+         call BOrest         
                            
          pop iy
          pop ix
@@ -346,8 +350,6 @@ GenMVexit:
          pop af
          ret
          
-
-  
                   
 ; helping procedure to obtain current X,Y on board and store to d,e regs.
 StoreXYtoDE:
@@ -3707,42 +3709,37 @@ DEBUGs:
 
 JMP_0000: .equ $F3EF         ;good exit to DOS prompt for sure 
                     
-;------ MoveGen update 02.02.2016
-; 1. saves board
-; 2. iterates for checkmate cases
-; 3. restores board (safe MoveGen)
-LookCheckmates:
-
-            ; save board before heavy movements
-         ld a,(BO_svf)
-         or a
-         jr nz,GenOvSv
-           
-         ld hl,BOARD            ; save upper board only
-         ld de,BO_save
-         ld bc,64+5
-         ldir
-
-GenOvSv:
-         inc a
-         ld (BO_svf),a
-
-         call LookForCheckmates   ; verifies checkmates
+;------ Safe MoveGen++ update 03.02.2016
+BOsave:
+    ; save board before heavy movements
+        ld a,(BO_sv_0)
+        inc a
+        ld (BO_sv_0),a
+        dec a
+        jr nz,BoSvOk
+        ld hl,BOARD             ; save board
+        ld de,BO_savedata
+        ld bc,64+6
+        ldir
+BoSvOk:
+        ret
+;-----
+BOrest:        
+        ld a,(BO_sv_0)
+        dec a
+        ld (BO_sv_0),a
+        jr nz,BoReOk            ; if top
+        ld de,BOARD             ; restore board
+        ld hl,BO_savedata
+        ld bc,64+6
+        ldir
+BoReOk:
+        ret
          
-         ld a,(BO_svf)
-         dec a
-         ld (BO_svf),a
-         jr nz,GenOvRs
-                                    
-         ld hl,BO_save
-         ld de,BOARD
-         ld bc,64+5
-         ldir               ; restore board
-GenOvRs:
-         ret
-
-BO_svf  .byte 0     ; if 0 then top
-BO_save .ds 64+5    ; BOARD, SIDE, CASTLES, ENPSQ, WKSQ, BKSQ
+BO_sv_0:
+        .byte 0     ; 0 if top
+BO_savedata:
+        .ds 64+6    ; to save BOARD,SIDE,CASTLES,ENPSQ,WKSQ,BKSQ
 
 ;---
 
