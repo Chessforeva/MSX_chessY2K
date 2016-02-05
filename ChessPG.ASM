@@ -329,6 +329,7 @@ FileSelCopyFname:
             ld a,0
             ld (CommT1),a
             ld (CommT2),a          ; clear comment counters
+            ld (_mv_I),a
             
             ld a,0                 ; set default position
             call SetFEN 
@@ -1435,15 +1436,7 @@ AppendWOcomments:
 ACloopAllstr:
          ld a,(ix)
          cp 0
-         jr z, ACover3        
-         
-         ld a,(CommT1)
-         cp 0
-         jr nz, ACLook4CommT1
-
-         ld a,(CommT2)
-         cp 0
-         jr nz, ACLook4CommT2
+         jr z, ACover3
          
          ld a,(ix)
          cp '{'
@@ -1452,21 +1445,21 @@ ACloopAllstr:
          ld a,(CommT1)
          inc a
          ld (CommT1),a
-         jr ACLoopIX       
+         jr ACrepl0        
                                  
 ACIfCommt2:
          ld a,(ix)
          cp '('
-         jr nz,ACLoopIX
+         jr nz,ACLook4CommT1
          ld a,(CommT2)
          inc a
          ld (CommT2),a
-         jr ACLoopIX 
+         jr ACrepl0  
          
 ACLook4CommT1:
          ld a,(ix)
          cp '}'
-         jr nz,ACLoopIX
+         jr nz,ACLook4CommT2
          ld a,(CommT1)
          dec a
          ld (CommT1),a         
@@ -1532,26 +1525,42 @@ ACnowAppend:
          pop de              ; =DR1K
          
          call ChessNotatedMoves
-         
-         ;DR1K now contains PGN move sfring from PGN file
+
+FoundPrint:                  
+         ;DR1K now contains PGN move string from PGN file
          ld ix, DR1K
+         push ix
+         pop de
+         call Str_Alltrim
+         call Str_Len
+         jr z,ACskpNoStr
+         ld de, sSpc      ; add 1 space
+         call Str_Append
          ld de, DRdoll    ; add $
          call Str_Append
          push ix
          pop de
          call PrintString 
+ACskpNoStr:
 
          pop ix
          pop de
          pop bc
          ret
 
-_mv_str: .byte "           ",0         ; notated move in form: Rad1+
+_mv_str: .byte "                 ",0         ; notated move in form: Rad1+
 
 ; processes all moves to get MOVE_str
 ChessNotatedMoves:
          push af
          push bc
+         
+;         ld a,(_mv_I)
+;         cp 1+1         ;(2...)
+;         jr nz, cnm_notdbg
+;         nop            ; to suspend in debug
+;cnm_notdbg:
+ 
          
 CNMskipSpaces:
          ld a,(de)
@@ -1565,9 +1574,9 @@ CNMnextMv:
          ld c,0
 CNMloopMv:
          inc c
-         ld a,10
+         ld a,15
          cp c
-         jr z,CNMexit_   ;10symbols too long for chess move
+         jr c,CNMexit_   ;16 symbols too long for chess move
                   
          ld a,(de)
          cp 0
@@ -1583,7 +1592,7 @@ CNMloopMv:
 CNMmoveTry:
          
 CNMdoSpcer:
-         ld a,10
+         ld a,16
          cp c
          jr z,CNMexitSpcer
          ld a,' '                   ; some clearing stuff (not long)
@@ -1628,6 +1637,7 @@ CNMexit_:
          jr CNMexit
 
 CNMnoPt:
+             
          call CNdontNeedResults
  
          ld de,_mv_str
@@ -1651,6 +1661,12 @@ CN_AlreadyCst:
          
          ld de,_mv_UCI
          call MoveStrAppend
+         
+         push af
+         ld a,(_mv_I)
+         inc a              ; found one move
+         ld (_mv_I),a
+         pop af
          
 CNMnoMove:      
          pop de
@@ -1752,6 +1768,8 @@ CNNoCastlEx:
          cp 0         
          ret
 
+_mv_I:  .byte 0         ; move already found counter (move number /2)
+
 
 _mv_UCI:                      ; UCI move in form: a7a8q
 _mv_fA:   .byte 0
@@ -1837,6 +1855,15 @@ CNM_Move:
          ld c,'P'    ; if seems pawn move
 CNMnotPawn:
 
+         ld a,c         
+         cp 'a'
+         jr c,CNMnot_pw
+         cp 'h'+1
+         jr nc,CNMnot_pw
+        
+         ld c,'P'    ; if seems pawn move like fxg6
+CNMnot_pw:
+
 CNMloopMoves:
          ld a,c
          cp 'P'
@@ -1873,12 +1900,13 @@ CNMPawnSkip:
 
 CNMnotThisMv:
          call CNMhlRR
+         ld a,(hl)
          cp '$'
-         jr z,CNMCpBadExit
+         jr z,CNMCqu         
          inc hl               ; set position to next move
          jr CNMloopMoves
          
-CNMCpBadExit:
+CNMCqu:
          ld a,0    ;not found
 CNMCpExit:
          pop ix
@@ -1939,9 +1967,6 @@ CNMskpPlLoop:
          ld a,(hl)
          cp '='
          jr nz,CNM_noPromo
-         ;ld a,c
-         ;cp 'P'
-         ;jr nz,CNM_noPromo
          inc hl
          ld a,(hl)
          dec hl
@@ -2226,6 +2251,18 @@ DspWtEx:
 
 zz_ChessPG_End:
          .export start_PG_Module
+         .export FSelSubMenu
+         .export DrawFileSelection
+         .export ChessPGN
+         .export AppendWOcomments         
+         .export CNM_Move
+         .export PrintPgnGmMvList
+         .export MoveStrClear
+         .export GmTableRow
+         .export ProcessGETSLine
+         .export DR1K
+         .export ChessNotatedMoves
+         .export FoundPrint
          .export zz_ChessPG_End
 .end
        

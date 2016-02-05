@@ -74,16 +74,16 @@ GraphicsS:
          ld (DragSq),a             ; no drag
          ld a,0
          ld (Grph_Exit),a          ; starting...
-         ld (RplyMs),a            ; set replayer position to 0  
-         
+         ld (RplyMs),a            ; set replayer position to 0
+
+
+
          call ClearLastFEN         ; for setup position clear previous one
          call SetScreen5By30h      ; set Screen 5 by using BIOS
          call DisableScreenBy30h   ; do not display
-         call Copy_VdpRegs         ; save VDP regs
-         call VDPfaster            ; optimize VDP, sprites off
-         
          ld hl, tbPalettes         ;
          call SetPaletteByTable    ; defines 16colors
+         call VDPfaster            ; optimize VDP, sprites off         
          call SetGraphics0         ; most graphics inits
          call PutMSXlogo           ; put MSX lable on screen
          call PutToMove            ; draws and saves rounded-sign which side to move
@@ -129,7 +129,6 @@ no_key_pressed:
          jr z,LOOP_GRAPHICS                                                                    
                                             
          call RestoreColors
-         call Rest_VdpRegs         ; restore VDP regs
          call SetScreen0By30h      ; set Screen 0
          
          ret
@@ -1842,7 +1841,7 @@ CursRectDraw:               ; rectangle with length provided in c, color in b
 ; Can't go twice (avoid fast emulator speed)
 ;
 
-	.byte "KEYDEBUG"
+    .byte "KEYDEBUG"
 
 PreKeyWas:  .byte 0
 
@@ -2089,6 +2088,15 @@ IfPieceSetupKeys:
          push de
          push hl
          ld b,a   ;save code
+         cp 'C'
+         jr z,CHideCurs
+         cp 'c'
+         jr z,CHideCurs
+         jr CskpCursRmv
+CHideCurs:
+         call DrawBoard
+         jr CsetupDoNothing
+CskpCursRmv:   
          cp 'P'
          jr z,CsetupWP
          cp 'N'
@@ -2438,4 +2446,13 @@ tbPalettes:
         .byte $D,6,5,6
         .byte $E,1,1,2
         .byte $F,1,2,1
-        
+
+ChessUI_end_addr:
+
+         .export tbPalettes
+         .export ChessUI_end_addr
+         .export GraphicsS
+         .export ANIMATION
+         .export DrawBoard
+         .export DrawSquare
+         .export Cursor_Key_Controls

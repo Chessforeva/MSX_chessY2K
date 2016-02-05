@@ -5,10 +5,11 @@
 ;=======================================
 
 _menuI:     .byte 0   ;Current menu item to choose
-_exitMn:    .byte 0   ;internal to know that exit 
+_exitMn:    .byte 0   ;internal to know that exit
+_canExit:   .byte 1   ;if no graphics, then can exit
 
 ChessMN:
-        
+
 MAINLOOP:
          ld a,0
          ld (_menuI),a
@@ -17,6 +18,11 @@ MAINLOOP:
          ld a,(_menuI)
          cp 0
          jr nz, ItemNo0
+         
+         ld a,(_canExit)
+         cp 0
+         jr z,MAINLOOP
+         
          jr EXIT_ALL        
 ItemNo0:
          cp 1
@@ -32,11 +38,11 @@ ItemNo0:
          ld (Stylo),a 
 
          call GraphicsS         ; user interface for chess program
-
-         ;jr EXIT_ALL		; can not continue
          
          ld a,0
          ld (Stylo),a
+         ld (_canExit),a
+                  
 #endif                   
          jr LoopM
 ItemNo1:      
@@ -50,7 +56,8 @@ ItemNo1:
          
          ld a,0
          ld (Stylo),a 
-
+         ld (_canExit),a
+         
          jr LoopM
 
 ItemNo2:
@@ -63,7 +70,8 @@ ItemNo2:
          call GraphicsS         ; user interface for chess program
          
          ld a,0
-         ld (Stylo),a 
+         ld (Stylo),a
+         ld (_canExit),a 
 
          jr LoopM
         
@@ -81,11 +89,10 @@ EXIT_ALL:
          
 
 MainMenu:
-            
-            call ClearScreenBy30h
-            call LastFENwasSet        ; to know FEN set up
             ld hl, tbPalettes         ; in datas of ChessUI  
-            call SetPaletteByTable    ; defines 16colors                 
+            call SetPaletteByTable    ; defines 16colors
+            call ClearScreenBy30h                         
+            call LastFENwasSet        ; to know FEN set up
                                        
             ld a,0
             ld (_exitMn),a
@@ -308,4 +315,7 @@ ChessY2K_pgn_module:
 #endif             
             ret
 
-        
+ChessMN_end_addr:
+
+         .export MAINLOOP
+         .export ChessMN_end_addr
