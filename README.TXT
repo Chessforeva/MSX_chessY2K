@@ -43,4 +43,8 @@ Chess position setup mode.
   Put pieces with  K,k,Q,q,R,r,B,b,N,n,P,p. Space key clears the square.
   Press "C" to remove cursor when ready to take screenshot.
 
+Other:
+MSX SDCC (SOLIDC) libraries
+https://chessforeva.bitbucket.io/SDCC_msx/index.htm
+https://bitbucket.org/chessforeva/chessforeva.bitbucket.io/src/master/SDCC_msx/
 
